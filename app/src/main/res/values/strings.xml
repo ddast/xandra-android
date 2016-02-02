@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Xandra</string>
+    <string name="title_activity_connect">Connect to</string>
+
+    <!-- ConnectActivity -->
+    <string name="enter_server_address">Enter server address</string>
+    <string name="connect">Connect</string>
+
+    <!-- MainActivity -->
+    <string name="connecting">Connecting&#8230;</string>
+    <string name="notconnected">Not connected</string>
+
+</resources>
