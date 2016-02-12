@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void...  params) {
             try {
                 mSocket = new Socket(mServerAddr, PORT);
+                mSocket.setTcpNoDelay(true);
                 mOutput = mSocket.getOutputStream();
                 Log.i(TAG, "Connected to " + mServerAddr);
                 return true;
