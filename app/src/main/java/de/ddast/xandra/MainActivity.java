@@ -20,13 +20,12 @@ package de.ddast.xandra;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -47,8 +46,10 @@ public class MainActivity extends AppCompatActivity {
     private static final byte BACKSPACE          = (byte)1;
     private static final byte LEFTCLICK          = (byte)2;
     private static final byte RIGHTCLICK         = (byte)3;
-    private static final int MOUSEVENT           = 127;
-    private static final int MOUSEVENTLEN        = 9;
+    private static final int MOUSEEVENT          = 127;
+    private static final int MOUSEEVENTLEN       = 9;
+    private static final long TAPDELAY           = 250;
+    private static final float TOUCHSLOP         = 10;
 
     private NoCursorEditText mBufferEdit;
     private String mServerAddr;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private OutputStream mOutput;
     private Handler mHandler;
     private Runnable mSendHeartbeat;
-    private GestureDetectorCompat mDetector;
+    private MouseGestureDetector mMouseGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +72,16 @@ public class MainActivity extends AppCompatActivity {
         mBufferEdit.setHorizontallyScrolling(true);  // does not work in xml for some reason
         mBufferEdit.addTextChangedListener(new AddedTextWatcher());
 
-        mDetector = new GestureDetectorCompat(this, new ScrollAndClickListener());
+        mMouseGestureDetector = new MouseGestureDetector();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        if(mMouseGestureDetector.processTouchEvent(event)) {
+            return true;
+        } else {
+            return super.onTouchEvent(event);
+        }
     }
 
     @Override
@@ -99,16 +109,10 @@ public class MainActivity extends AppCompatActivity {
         new ConnectToServer().execute();
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        this.mDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
-
     private void sendMouse(int distanceX, int distanceY) {
-        byte[] bA = ByteBuffer.allocate(MOUSEVENTLEN).put((byte)MOUSEVENT)
-                                                     .putInt(distanceX)
-                                                     .putInt(distanceY).array();
+        byte[] bA = ByteBuffer.allocate(MOUSEEVENTLEN).put((byte)MOUSEEVENT)
+                                                      .putInt(distanceX)
+                                                      .putInt(distanceY).array();
         sendBytes(bA);
     }
 
@@ -190,9 +194,7 @@ public class MainActivity extends AppCompatActivity {
     private class SendHeartbeat implements Runnable {
         @Override
         public void run() {
-            byte[] bA = new byte[1];
-            bA[0] = HEARTBEAT;
-            if (!sendBytes(bA)) {
+            if (!sendBytes(new byte[] {HEARTBEAT})) {
                 Log.e(TAG, "Hearbeat error, try to reconnect");
                 new ConnectToServer().execute();
             } else {
@@ -233,33 +235,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class ScrollAndClickListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDown(MotionEvent event) {
-            return true;
+    private class MouseGestureDetector {
+        private int mPointerID1;
+        private int mPointerID2;
+        private float initX;
+        private float initY;
+        private float mOldX;
+        private float mOldY;
+
+        private long mDownEventTime;
+
+        private boolean processTouchEvent(MotionEvent event) {
+            int action = MotionEventCompat.getActionMasked(event);
+
+            switch(action) {
+                case (MotionEvent.ACTION_DOWN):
+                    mPointerID1 = event.getPointerId(0);
+                    initX = mOldX = event.getX(mPointerID1);
+                    initY = mOldY = event.getY(mPointerID1);
+                    mDownEventTime = event.getEventTime();
+                    return true;
+                case (MotionEvent.ACTION_POINTER_DOWN):
+                    if (event.getPointerCount() == 2) {
+                        mPointerID2 = event.getPointerId(1);
+                    }
+                    return true;
+                case (MotionEvent.ACTION_MOVE):
+                    float diffX = event.getX(mPointerID1) - mOldX;
+                    float diffY = event.getY(mPointerID1) - mOldY;
+                    mOldX = event.getX(mPointerID1);
+                    mOldY = event.getY(mPointerID1);
+                    sendMouse(Math.round(diffX), Math.round(diffY));
+                    return true;
+                case (MotionEvent.ACTION_UP):
+                    if ((Math.abs(event.getX(mPointerID1)-initX) < TOUCHSLOP) &&
+                        (Math.abs(event.getY(mPointerID1)-initY) < TOUCHSLOP)) {
+                        if (event.getEventTime() - mDownEventTime < TAPDELAY) {
+                            sendBytes(new byte[] {LEFTCLICK});
+                        } else {
+                            sendBytes(new byte[] {RIGHTCLICK});
+                        }
+                    }
+                    return true;
+                case (MotionEvent.ACTION_CANCEL):
+                    return true;
+                case (MotionEvent.ACTION_OUTSIDE):
+                    return true;
+                default:
+                    return false;
+            }
         }
 
-        @Override
-        public void onLongPress(MotionEvent event) {
-            byte[] bA = new byte[1];
-            bA[0] = RIGHTCLICK;
-            sendBytes(bA);
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-                                float distanceY) {
-            sendMouse(Math.round(distanceX), Math.round(distanceY));
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent event) {
-            byte[] bA = new byte[1];
-            bA[0] = LEFTCLICK;
-            sendBytes(bA);
-            return true;
-        }
     }
 }
 
