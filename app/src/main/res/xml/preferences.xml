@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016  Dennis Dast
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <ListPreference
+      android:key="pref_theme"
+      android:title="@string/pref_theme_title"
+      android:dialogTitle="@string/pref_theme_title"
+      android:entries="@array/pref_theme_entries"
+      android:entryValues="@array/pref_theme_entryValues"
+      android:defaultValue="@string/pref_theme_default" />
+    <EditTextPreference
+        android:key="pref_port"
+        android:title="@string/pref_port_title"
+        android:dialogTitle="@string/pref_port_title"
+        android:defaultValue="@string/pref_port_default"
+        android:inputType="number"
+        android:hint="@string/pref_port_default" />
+    <EditTextPreference
+        android:key="pref_sensitivity"
+        android:title="@string/pref_sensitivity_title"
+        android:dialogTitle="@string/pref_sensitivity_title"
+        android:defaultValue="@string/pref_sensitivity_default"
+        android:inputType="numberDecimal|numberSigned"
+        android:hint="@string/pref_sensitivity_default" />
+    <EditTextPreference
+        android:key="pref_tapdelay"
+        android:title="@string/pref_tapdelay_title"
+        android:dialogTitle="@string/pref_tapdelay_title"
+        android:defaultValue="@string/pref_tapdelay_default"
+        android:inputType="number"
+        android:hint="@string/pref_tapdelay_default" />
+    <EditTextPreference
+        android:key="@string/pref_touchslop"
+        android:title="@string/pref_touchslop_title"
+        android:dialogTitle="@string/pref_touchslop_title"
+        android:defaultValue="@string/pref_touchslop_default"
+        android:inputType="number"
+        android:hint="@string/pref_touchslop_default" />
+</PreferenceScreen>

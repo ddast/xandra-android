@@ -18,8 +18,10 @@
 package de.ddast.xandra;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,8 +41,9 @@ import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
     private static final String TAG              = "MainActivity";
-    private static final int PORT                = 64296;
     private static final byte HEARTBEAT          = (byte)0;
     private static final long HEARTBEAT_INTERVAL = 3000L;
     private static final byte BACKSPACE          = (byte)1;
@@ -48,9 +51,12 @@ public class MainActivity extends AppCompatActivity {
     private static final byte RIGHTCLICK         = (byte)3;
     private static final int MOUSEEVENT          = 127;
     private static final int MOUSEEVENTLEN       = 9;
-    private static final long TAPDELAY           = 250;
-    private static final float TOUCHSLOP         = 10;
 
+
+    private int mPort;
+    private long mTapdelay;
+    private float mTouchslop;
+    private float mSensitivity;
     private NoCursorEditText mBufferEdit;
     private String mServerAddr;
     private Socket mSocket;
@@ -61,8 +67,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = sharedPreferences.getString(this.getString(R.string.pref_theme), "");
+        if (theme.equals("dark")) {
+            setTheme(R.style.DarkThemeNoActionbar);
+        } else if (theme.equals("light")) {
+            setTheme(R.style.LightThemeNoActionbar);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mPort        = Integer.valueOf(
+                       sharedPreferences.getString(this.getString(R.string.pref_port), ""));
+        mTapdelay    = Long.valueOf(
+                       sharedPreferences.getString(this.getString(R.string.pref_tapdelay), ""));
+        mTouchslop   = Float.valueOf(
+                       sharedPreferences.getString(this.getString(R.string.pref_touchslop), ""));
+        mSensitivity = Float.valueOf(
+                       sharedPreferences.getString(this.getString(R.string.pref_sensitivity), ""));
 
         mServerAddr    = getIntent().getStringExtra(ConnectActivity.SERVERADDR);
         mBufferEdit    = (NoCursorEditText)findViewById(R.id.buffer_edit);
@@ -77,11 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        if(mMouseGestureDetector.processTouchEvent(event)) {
-            return true;
-        } else {
-            return super.onTouchEvent(event);
-        }
+        return mMouseGestureDetector.processTouchEvent(event) || super.onTouchEvent(event);
     }
 
     @Override
@@ -163,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void...  params) {
             try {
-                mSocket = new Socket(mServerAddr, PORT);
+                mSocket = new Socket(mServerAddr, mPort);
                 mSocket.setTcpNoDelay(true);
                 mOutput = mSocket.getOutputStream();
                 Log.i(TAG, "Connected to " + mServerAddr);
@@ -265,12 +284,12 @@ public class MainActivity extends AppCompatActivity {
                     float diffY = event.getY(mPointerID1) - mOldY;
                     mOldX = event.getX(mPointerID1);
                     mOldY = event.getY(mPointerID1);
-                    sendMouse(Math.round(diffX), Math.round(diffY));
+                    sendMouse(Math.round(mSensitivity*diffX), Math.round(mSensitivity*diffY));
                     return true;
                 case (MotionEvent.ACTION_UP):
-                    if ((Math.abs(event.getX(mPointerID1)-initX) < TOUCHSLOP) &&
-                        (Math.abs(event.getY(mPointerID1)-initY) < TOUCHSLOP)) {
-                        if (event.getEventTime() - mDownEventTime < TAPDELAY) {
+                    if ((Math.abs(event.getX(mPointerID1)-initX) < mTouchslop) &&
+                        (Math.abs(event.getY(mPointerID1)-initY) < mTouchslop)) {
+                        if (event.getEventTime() - mDownEventTime < mTapdelay) {
                             sendBytes(new byte[] {LEFTCLICK});
                         } else {
                             sendBytes(new byte[] {RIGHTCLICK});

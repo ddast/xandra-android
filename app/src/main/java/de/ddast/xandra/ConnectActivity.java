@@ -19,23 +19,36 @@ package de.ddast.xandra;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 public class ConnectActivity extends AppCompatActivity {
 
-    private static final String TAG = "ConnectActivity";
-
     public final static String SERVERADDR = "serveraddr";
+    public static boolean themeHasChanged = false;
 
-    EditText mServerEdit;
-    Button mConnectButton;
+    private EditText mServerEdit;
+    private Button mConnectButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = sharedPreferences.getString(this.getString(R.string.pref_theme), "");
+        if (theme.equals("dark")) {
+            setTheme(R.style.DarkTheme);
+        } else if (theme.equals("light")) {
+            setTheme(R.style.LightTheme);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
 
@@ -63,6 +76,43 @@ public class ConnectActivity extends AppCompatActivity {
         SharedPreferences settings = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(SERVERADDR, mServerEdit.getText().toString());
-        editor.commit();
+        editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        if (themeHasChanged) {
+            themeHasChanged = false;
+            recreate();
+        }
+        super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = sharedPreferences.getString(this.getString(R.string.pref_theme), "");
+        if (theme.equals("dark")) {
+            menu.findItem(R.id.action_settings).setIcon(R.drawable.ic_settings_white_24dp);
+        } else if (theme.equals("light")) {
+            menu.findItem(R.id.action_settings).setIcon(R.drawable.ic_settings_black_24dp);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
