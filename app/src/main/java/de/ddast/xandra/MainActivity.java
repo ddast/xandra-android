@@ -41,17 +41,14 @@ import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
-
-
     private static final String TAG              = "MainActivity";
-    private static final byte HEARTBEAT          = (byte)0;
     private static final long HEARTBEAT_INTERVAL = 3000L;
+    private static final byte MOUSEEVENT         = (byte)127;
+    private static final int MOUSEEVENTLEN       = 9;
+    private static final byte HEARTBEAT          = (byte)0;
     private static final byte BACKSPACE          = (byte)1;
     private static final byte LEFTCLICK          = (byte)2;
     private static final byte RIGHTCLICK         = (byte)3;
-    private static final int MOUSEEVENT          = 127;
-    private static final int MOUSEEVENTLEN       = 9;
-
 
     private int mPort;
     private long mTapdelay;
@@ -129,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendMouse(int distanceX, int distanceY) {
-        byte[] bA = ByteBuffer.allocate(MOUSEEVENTLEN).put((byte)MOUSEEVENT)
+        byte[] bA = ByteBuffer.allocate(MOUSEEVENTLEN).put(MOUSEEVENT)
                                                       .putInt(distanceX)
                                                       .putInt(distanceY).array();
         sendBytes(bA);
@@ -235,8 +232,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void beforeTextChanged (CharSequence s, int start, int count, int after) {
-        }
+        public void beforeTextChanged (CharSequence s, int start, int count, int after) {}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {
@@ -261,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
         private float initY;
         private float mOldX;
         private float mOldY;
-
         private long mDownEventTime;
 
         private boolean processTouchEvent(MotionEvent event) {
@@ -304,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
                     return false;
             }
         }
-
     }
 }
 
