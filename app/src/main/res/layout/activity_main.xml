@@ -20,20 +20,95 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:padding="0dp"
     tools:context="de.ddast.xandra.MainActivity">
 
-    <de.ddast.xandra.NoCursorEditText
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/buffer_edit"
-        android:inputType="textNoSuggestions|textMultiLine"
-        android:cursorVisible="true"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:enabled="false" />
+        android:layout_alignParentTop="true"
+        android:paddingBottom="0dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <de.ddast.xandra.NoCursorEditText
+            android:layout_width="0dp"
+            android:layout_weight="10"
+            android:layout_height="wrap_content"
+            android:id="@+id/buffer_edit"
+            android:inputType="textNoSuggestions|textMultiLine"
+            android:cursorVisible="true"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:enabled="false" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="25dp"
+            android:text="…"
+            android:id="@+id/button_togglekeys"
+            android:background="@color/colorAccentTransparent"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="0dp"
+        android:visibility="gone"
+        android:id="@+id/layout_keys">
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_esc"
+            android:id="@+id/button_esc" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_tab"
+            android:id="@+id/button_tab" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_ctrl"
+            android:id="@+id/button_ctrl" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_sup"
+            android:id="@+id/button_sup" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_alt"
+            android:id="@+id/button_alt" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_left"
+            android:id="@+id/button_left" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_down"
+            android:id="@+id/button_down" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_up"
+            android:id="@+id/button_up" />
+
+        <Button
+            style="@style/KeyButton"
+            android:text="@string/button_right"
+            android:id="@+id/button_right" />
+
+    </LinearLayout>
+
 
 </RelativeLayout>

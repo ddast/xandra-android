@@ -21,5 +21,16 @@
     <string name="pref_tapdelay_title">Tap Delay</string>
     <string name="pref_touchslop_title">Touch Slop</string>
 
+    <!-- Buttons -->
+    <string name="button_esc">esc</string>
+    <string name="button_tab">tab</string>
+    <string name="button_ctrl">ctrl</string>
+    <string name="button_sup">sup</string>
+    <string name="button_alt">alt</string>
+    <string name="button_left">◀</string>
+    <string name="button_up">▲</string>
+    <string name="button_down">▼</string>
+    <string name="button_right">▶</string>
+
 
 </resources>

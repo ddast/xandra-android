@@ -18,6 +18,7 @@
 package de.ddast.xandra;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -31,6 +32,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
     private static final byte BACKSPACE          = (byte)1;
     private static final byte LEFTCLICK          = (byte)2;
     private static final byte RIGHTCLICK         = (byte)3;
+    private static final byte ESCAPE             = (byte)4;
+    private static final byte TAB                = (byte)5;
+    private static final byte LEFT               = (byte)6;
+    private static final byte DOWN               = (byte)7;
+    private static final byte UP                 = (byte)8;
+    private static final byte RIGHT              = (byte)9;
 
     private int mPort;
     private long mTapdelay;
@@ -93,6 +102,69 @@ public class MainActivity extends AppCompatActivity {
         mBufferEdit.addTextChangedListener(new AddedTextWatcher());
 
         mMouseGestureDetector = new MouseGestureDetector();
+
+        initKeyboardButtons();
+    }
+
+    private void initKeyboardButtons() {
+        final LinearLayout layoutKeys = (LinearLayout) findViewById(R.id.layout_keys);
+        Button toggleButton = (Button)findViewById(R.id.button_togglekeys);
+        toggleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int newVisibility = layoutKeys.getVisibility() == View.VISIBLE ? View.GONE :
+                        View.VISIBLE;
+                layoutKeys.setVisibility(newVisibility);
+            }
+        });
+
+        Button escButton = (Button)findViewById(R.id.button_esc);
+        escButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {ESCAPE});
+            }
+        });
+
+        Button tabButton = (Button)findViewById(R.id.button_tab);
+        tabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {TAB});
+            }
+        });
+
+        Button leftButton = (Button)findViewById(R.id.button_left);
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {LEFT});
+            }
+        });
+
+        Button downButton = (Button)findViewById(R.id.button_down);
+        downButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {DOWN});
+            }
+        });
+
+        Button upButton = (Button)findViewById(R.id.button_up);
+        upButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {UP});
+            }
+        });
+
+        Button rightButton = (Button)findViewById(R.id.button_right);
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {RIGHT});
+            }
+        });
     }
 
     @Override

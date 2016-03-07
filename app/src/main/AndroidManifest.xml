@@ -36,7 +36,8 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/LightThemeNoActionbar">
+            android:theme="@style/LightThemeNoActionbar"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ConnectActivity" />
