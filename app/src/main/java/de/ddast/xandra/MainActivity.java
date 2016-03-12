@@ -18,7 +18,6 @@
 package de.ddast.xandra;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -49,21 +48,26 @@ public class MainActivity extends AppCompatActivity {
     private static final byte MOUSEEVENT         = (byte)127;
     private static final int MOUSEEVENTLEN       = 9;
     private static final byte HEARTBEAT          = (byte)0;
-    private static final byte BACKSPACE          = (byte)1;
-    private static final byte LEFTCLICK          = (byte)2;
-    private static final byte RIGHTCLICK         = (byte)3;
+    private static final byte LEFTCLICK          = (byte)1;
+    private static final byte RIGHTCLICK         = (byte)2;
+    private static final byte BACKSPACE          = (byte)3;
     private static final byte ESCAPE             = (byte)4;
     private static final byte TAB                = (byte)5;
     private static final byte LEFT               = (byte)6;
     private static final byte DOWN               = (byte)7;
     private static final byte UP                 = (byte)8;
     private static final byte RIGHT              = (byte)9;
+    private static final byte CTRL               = (byte)11;
+    private static final byte SUP                = (byte)12;
+    private static final byte ALT                = (byte)13;
 
     private int mPort;
     private long mTapdelay;
-    private float mTouchslop;
+    private float mTaptol;
     private float mSensitivity;
     private NoCursorEditText mBufferEdit;
+    private LinearLayout mLayoutKeys;
+    private Button mToggleButton;
     private String mServerAddr;
     private Socket mSocket;
     private OutputStream mOutput;
@@ -88,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
                        sharedPreferences.getString(this.getString(R.string.pref_port), ""));
         mTapdelay    = Long.valueOf(
                        sharedPreferences.getString(this.getString(R.string.pref_tapdelay), ""));
-        mTouchslop   = Float.valueOf(
-                       sharedPreferences.getString(this.getString(R.string.pref_touchslop), ""));
+        mTaptol      = Float.valueOf(
+                       sharedPreferences.getString(this.getString(R.string.pref_taptol), ""));
         mSensitivity = Float.valueOf(
                        sharedPreferences.getString(this.getString(R.string.pref_sensitivity), ""));
 
@@ -107,14 +111,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initKeyboardButtons() {
-        final LinearLayout layoutKeys = (LinearLayout) findViewById(R.id.layout_keys);
-        Button toggleButton = (Button)findViewById(R.id.button_togglekeys);
-        toggleButton.setOnClickListener(new View.OnClickListener() {
+        mLayoutKeys = (LinearLayout)findViewById(R.id.layout_keys);
+        mToggleButton = (Button)findViewById(R.id.button_togglekeys);
+        mToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int newVisibility = layoutKeys.getVisibility() == View.VISIBLE ? View.GONE :
+                int newVisibility = mLayoutKeys.getVisibility() == View.VISIBLE ? View.GONE :
                         View.VISIBLE;
-                layoutKeys.setVisibility(newVisibility);
+                mLayoutKeys.setVisibility(newVisibility);
             }
         });
 
@@ -131,6 +135,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendBytes(new byte[] {TAB});
+            }
+        });
+
+        Button ctrlButton = (Button)findViewById(R.id.button_ctrl);
+        ctrlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {CTRL});
+            }
+        });
+
+        Button supButton = (Button)findViewById(R.id.button_sup);
+        supButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {SUP});
+            }
+        });
+
+        Button altButton = (Button)findViewById(R.id.button_alt);
+        altButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes(new byte[] {ALT});
             }
         });
 
@@ -169,15 +197,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        return mMouseGestureDetector.processTouchEvent(event) || super.onTouchEvent(event);
+        if (mBufferEdit.isEnabled()) {
+            return mMouseGestureDetector.processTouchEvent(event) || super.onTouchEvent(event);
+        } else {
+            return super.onTouchEvent(event);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        mBufferEdit.setEnabled(false);
-        mBufferEdit.setText(R.string.notconnected);
+        setUiToDisconnected();
         mHandler.removeCallbacks(mSendHeartbeat);
 
         if (mSocket == null) {
@@ -216,8 +247,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean sendBytes(byte[] bA) {
         if (mOutput == null) {
             Log.e(TAG, "Tried to send, but not yet connected");
-            mBufferEdit.setEnabled(false);
-            mBufferEdit.setText(R.string.notconnected);
+            setUiToDisconnected();
             return false;
         }
 
@@ -225,11 +255,24 @@ public class MainActivity extends AppCompatActivity {
             mOutput.write(bA);
         } catch (IOException e) {
             Log.e(TAG, "IO error while sending");
-            mBufferEdit.setEnabled(false);
-            mBufferEdit.setText(R.string.notconnected);
+            setUiToDisconnected();
             return false;
         }
         return true;
+    }
+
+    private void setUiToDisconnected() {
+        mBufferEdit.setEnabled(false);
+        mBufferEdit.setText(R.string.notconnected);
+        mLayoutKeys.setVisibility(View.GONE);
+        mToggleButton.setEnabled(false);
+    }
+
+    private void setUiToConnected() {
+        mBufferEdit.setEnabled(true);
+        mBufferEdit.setText(" ");
+        showSoftKeyboard(mBufferEdit);
+        mToggleButton.setEnabled(true);
     }
 
     private void showSoftKeyboard(View view) {
@@ -244,8 +287,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             Log.i(TAG, "Connecting to " + mServerAddr);
-            mBufferEdit.setEnabled(false);
-            mBufferEdit.setText(R.string.connecting);
+            setUiToDisconnected();
         }
 
         @Override
@@ -268,12 +310,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                mBufferEdit.setEnabled(true);
-                mBufferEdit.setText(" ");
-                showSoftKeyboard(mBufferEdit);
+                setUiToConnected();
             } else {
-                mBufferEdit.setEnabled(false);
-                mBufferEdit.setText(R.string.notconnected);
+                setUiToDisconnected();
             }
             mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
         }
@@ -354,8 +393,8 @@ public class MainActivity extends AppCompatActivity {
                     sendMouse(Math.round(mSensitivity*diffX), Math.round(mSensitivity*diffY));
                     return true;
                 case (MotionEvent.ACTION_UP):
-                    if ((Math.abs(event.getX(mPointerID1)-initX) < mTouchslop) &&
-                        (Math.abs(event.getY(mPointerID1)-initY) < mTouchslop)) {
+                    if ((Math.abs(event.getX(mPointerID1)-initX) < mTaptol) &&
+                        (Math.abs(event.getY(mPointerID1)-initY) < mTaptol)) {
                         if (event.getEventTime() - mDownEventTime < mTapdelay) {
                             sendBytes(new byte[] {LEFTCLICK});
                         } else {

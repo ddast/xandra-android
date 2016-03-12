@@ -6,7 +6,6 @@
     <string name="connect">Connect</string>
 
     <!-- MainActivity -->
-    <string name="connecting">Connecting&#8230;</string>
     <string name="notconnected">Not connected</string>
 
     <!-- Settings -->
@@ -18,8 +17,11 @@
     </array>
     <string name="pref_port_title">Port</string>
     <string name="pref_sensitivity_title">Sensitivity</string>
+    <string name="pref_sensitivity_message">Multiplicative factor for mouse movement.</string>
     <string name="pref_tapdelay_title">Tap Delay</string>
-    <string name="pref_touchslop_title">Touch Slop</string>
+    <string name="pref_tapdelay_message">Maximum time in milliseconds of a gesture to be recognized as a tap (left click).</string>
+    <string name="pref_taptol_title">Tap Tolerance</string>
+    <string name="pref_taptol_message">Allowed movement in pixels of a gesture to be recognized as a tap (left click).</string>
 
     <!-- Buttons -->
     <string name="button_esc">esc</string>

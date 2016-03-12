@@ -35,6 +35,7 @@
         android:key="pref_sensitivity"
         android:title="@string/pref_sensitivity_title"
         android:dialogTitle="@string/pref_sensitivity_title"
+        android:dialogMessage="@string/pref_sensitivity_message"
         android:defaultValue="@string/pref_sensitivity_default"
         android:inputType="numberDecimal|numberSigned"
         android:hint="@string/pref_sensitivity_default" />
@@ -42,14 +43,16 @@
         android:key="pref_tapdelay"
         android:title="@string/pref_tapdelay_title"
         android:dialogTitle="@string/pref_tapdelay_title"
+        android:dialogMessage="@string/pref_tapdelay_message"
         android:defaultValue="@string/pref_tapdelay_default"
         android:inputType="number"
         android:hint="@string/pref_tapdelay_default" />
     <EditTextPreference
-        android:key="@string/pref_touchslop"
-        android:title="@string/pref_touchslop_title"
-        android:dialogTitle="@string/pref_touchslop_title"
-        android:defaultValue="@string/pref_touchslop_default"
+        android:key="@string/pref_taptol"
+        android:title="@string/pref_taptol_title"
+        android:dialogTitle="@string/pref_taptol_title"
+        android:dialogMessage="@string/pref_taptol_message"
+        android:defaultValue="@string/pref_taptol_default"
         android:inputType="number"
-        android:hint="@string/pref_touchslop_default" />
+        android:hint="@string/pref_taptol_default" />
 </PreferenceScreen>

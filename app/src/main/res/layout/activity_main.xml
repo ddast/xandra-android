@@ -50,7 +50,7 @@
             android:layout_height="25dp"
             android:text="…"
             android:id="@+id/button_togglekeys"
-            android:background="@color/colorAccentTransparent"/>
+            android:background="@color/colorAccent"/>
 
     </LinearLayout>
 

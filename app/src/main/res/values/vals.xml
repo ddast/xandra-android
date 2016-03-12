@@ -17,6 +17,6 @@
     <string name="pref_tapdelay">pref_tapdelay</string>
     <string name="pref_tapdelay_default">250</string>
 
-    <string name="pref_touchslop">pref_touchslop</string>
-    <string name="pref_touchslop_default">10.0</string>
+    <string name="pref_taptol">pref_taptol</string>
+    <string name="pref_taptol_default">10.0</string>
 </resources>
