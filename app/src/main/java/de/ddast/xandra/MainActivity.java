@@ -55,16 +55,17 @@ public class MainActivity extends AppCompatActivity {
     private static final byte RIGHTCLICK         = (byte)0x02;
     private static final byte WHEELUP            = (byte)0x03;
     private static final byte WHEELDOWN          = (byte)0x04;
-    private static final byte BACKSPACE          = (byte)0x05;
-    private static final byte ESCAPE             = (byte)0x06;
-    private static final byte TAB                = (byte)0x07;
-    private static final byte LEFT               = (byte)0x08;
-    private static final byte DOWN               = (byte)0x09;
-    private static final byte UP                 = (byte)0x0b;
-    private static final byte RIGHT              = (byte)0x0c;
-    private static final byte CTRL               = (byte)0x0d;
-    private static final byte SUP                = (byte)0x0e;
-    private static final byte ALT                = (byte)0x0f;
+    private static final byte CTRL               = (byte)0x05;
+    private static final byte SUP                = (byte)0x06;
+    private static final byte ALT                = (byte)0x07;
+    private static final byte BACKSPACE          = (byte)0x08;
+    private static final byte ESCAPE             = (byte)0x09;
+    private static final byte TAB                = (byte)0x0b;
+    private static final byte LEFT               = (byte)0x0c;
+    private static final byte DOWN               = (byte)0x0d;
+    private static final byte UP                 = (byte)0x0e;
+    private static final byte RIGHT              = (byte)0x0f;
+
 
     private int mPort;
     private long mTapdelay;
