@@ -40,6 +40,14 @@
         android:inputType="numberDecimal|numberSigned"
         android:hint="@string/pref_sensitivity_default" />
     <EditTextPreference
+        android:key="pref_scrollthreshold"
+        android:title="@string/pref_scrollthreshold_title"
+        android:dialogTitle="@string/pref_scrollthreshold_title"
+        android:dialogMessage="@string/pref_scrollthreshold_message"
+        android:defaultValue="@string/pref_scrollthreshold_default"
+        android:inputType="numberDecimal|numberSigned"
+        android:hint="@string/pref_scrollthreshold_default" />
+    <EditTextPreference
         android:key="pref_tapdelay"
         android:title="@string/pref_tapdelay_title"
         android:dialogTitle="@string/pref_tapdelay_title"

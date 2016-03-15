@@ -44,27 +44,33 @@ import java.nio.ByteBuffer;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG              = "MainActivity";
+
     private static final long HEARTBEAT_INTERVAL = 3000L;
-    private static final byte MOUSEEVENT         = (byte)127;
+
+    private static final byte MOUSEEVENT         = (byte)0xff;
     private static final int MOUSEEVENTLEN       = 9;
-    private static final byte HEARTBEAT          = (byte)0;
-    private static final byte LEFTCLICK          = (byte)1;
-    private static final byte RIGHTCLICK         = (byte)2;
-    private static final byte BACKSPACE          = (byte)3;
-    private static final byte ESCAPE             = (byte)4;
-    private static final byte TAB                = (byte)5;
-    private static final byte LEFT               = (byte)6;
-    private static final byte DOWN               = (byte)7;
-    private static final byte UP                 = (byte)8;
-    private static final byte RIGHT              = (byte)9;
-    private static final byte CTRL               = (byte)11;
-    private static final byte SUP                = (byte)12;
-    private static final byte ALT                = (byte)13;
+
+    private static final byte HEARTBEAT          = (byte)0x00;
+    private static final byte LEFTCLICK          = (byte)0x01;
+    private static final byte RIGHTCLICK         = (byte)0x02;
+    private static final byte WHEELUP            = (byte)0x03;
+    private static final byte WHEELDOWN          = (byte)0x04;
+    private static final byte BACKSPACE          = (byte)0x05;
+    private static final byte ESCAPE             = (byte)0x06;
+    private static final byte TAB                = (byte)0x07;
+    private static final byte LEFT               = (byte)0x08;
+    private static final byte DOWN               = (byte)0x09;
+    private static final byte UP                 = (byte)0x0b;
+    private static final byte RIGHT              = (byte)0x0c;
+    private static final byte CTRL               = (byte)0x0d;
+    private static final byte SUP                = (byte)0x0e;
+    private static final byte ALT                = (byte)0x0f;
 
     private int mPort;
     private long mTapdelay;
     private float mTaptol;
     private float mSensitivity;
+    private float mScrollThreshold;
     private NoCursorEditText mBufferEdit;
     private LinearLayout mLayoutKeys;
     private Button mToggleButton;
@@ -88,14 +94,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPort        = Integer.valueOf(
-                       sharedPreferences.getString(this.getString(R.string.pref_port), ""));
-        mTapdelay    = Long.valueOf(
-                       sharedPreferences.getString(this.getString(R.string.pref_tapdelay), ""));
-        mTaptol      = Float.valueOf(
-                       sharedPreferences.getString(this.getString(R.string.pref_taptol), ""));
-        mSensitivity = Float.valueOf(
-                       sharedPreferences.getString(this.getString(R.string.pref_sensitivity), ""));
+        mPort            = Integer.valueOf(sharedPreferences.getString(
+                                           this.getString(R.string.pref_port), ""));
+        mTapdelay        = Long.valueOf(sharedPreferences.getString(
+                                        this.getString(R.string.pref_tapdelay), ""));
+        mTaptol          = Float.valueOf(sharedPreferences.getString(
+                                         this.getString(R.string.pref_taptol), ""));
+        mSensitivity     = Float.valueOf(sharedPreferences.getString(
+                                         this.getString(R.string.pref_sensitivity), ""));
+        mScrollThreshold = Float.valueOf(sharedPreferences.getString(
+                                         this.getString(R.string.pref_scrollthreshold), ""));
 
         mServerAddr    = getIntent().getStringExtra(ConnectActivity.SERVERADDR);
         mBufferEdit    = (NoCursorEditText)findViewById(R.id.buffer_edit);
@@ -362,50 +370,105 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class MouseGestureDetector {
-        private int mPointerID1;
-        private int mPointerID2;
+        private int mPointerID1 = MotionEvent.INVALID_POINTER_ID;
+        private int mPointerID2 = MotionEvent.INVALID_POINTER_ID;
         private float initX;
         private float initY;
         private float mOldX;
         private float mOldY;
+        private float mOldY2;
+        private float accumulatedDiffY;
         private long mDownEventTime;
 
         private boolean processTouchEvent(MotionEvent event) {
             int action = MotionEventCompat.getActionMasked(event);
 
             switch(action) {
-                case (MotionEvent.ACTION_DOWN):
-                    mPointerID1 = event.getPointerId(0);
-                    initX = mOldX = event.getX(mPointerID1);
-                    initY = mOldY = event.getY(mPointerID1);
+                case (MotionEvent.ACTION_DOWN): {
+                    final int pointerIndex = event.getActionIndex();
+                    mPointerID1 = event.getPointerId(pointerIndex);
+                    initX = mOldX = event.getX(pointerIndex);
+                    initY = mOldY = event.getY(pointerIndex);
                     mDownEventTime = event.getEventTime();
                     return true;
-                case (MotionEvent.ACTION_POINTER_DOWN):
+                }
+                case (MotionEvent.ACTION_POINTER_DOWN): {
                     if (event.getPointerCount() == 2) {
-                        mPointerID2 = event.getPointerId(1);
+                        final int pointerIndex = event.getActionIndex();
+                        mPointerID2 = event.getPointerId(pointerIndex);
+                        mOldY2 = event.getY(pointerIndex);
+                        accumulatedDiffY = 0.0f;
                     }
                     return true;
-                case (MotionEvent.ACTION_MOVE):
-                    float diffX = event.getX(mPointerID1) - mOldX;
-                    float diffY = event.getY(mPointerID1) - mOldY;
-                    mOldX = event.getX(mPointerID1);
-                    mOldY = event.getY(mPointerID1);
-                    sendMouse(Math.round(mSensitivity*diffX), Math.round(mSensitivity*diffY));
-                    return true;
-                case (MotionEvent.ACTION_UP):
-                    if ((Math.abs(event.getX(mPointerID1)-initX) < mTaptol) &&
-                        (Math.abs(event.getY(mPointerID1)-initY) < mTaptol)) {
-                        if (event.getEventTime() - mDownEventTime < mTapdelay) {
-                            sendBytes(new byte[] {LEFTCLICK});
-                        } else {
-                            sendBytes(new byte[] {RIGHTCLICK});
+                }
+                case (MotionEvent.ACTION_MOVE): {
+                    final int pointerIndex = event.findPointerIndex(mPointerID1);
+                    float diffX = event.getX(pointerIndex) - mOldX;
+                    float diffY = event.getY(pointerIndex) - mOldY;
+                    mOldX = event.getX(pointerIndex);
+                    mOldY = event.getY(pointerIndex);
+                    if (event.getPointerCount() == 1) {
+                        sendMouse(Math.round(mSensitivity * diffX),
+                                  Math.round(mSensitivity * diffY));
+                    } else {
+                        final int pointerIndex2 = event.findPointerIndex(mPointerID2);
+                        float diffY2 = event.getY(pointerIndex2) - mOldY2;
+                        mOldY2 = event.getY(pointerIndex2);
+                        accumulatedDiffY += 0.5f * (diffY + diffY2);
+                        if (accumulatedDiffY < -mScrollThreshold) {
+                            sendBytes(new byte[]{WHEELUP});
+                            accumulatedDiffY = 0.f;
+                        } else if (accumulatedDiffY > mScrollThreshold) {
+                            sendBytes(new byte[]{WHEELDOWN});
+                            accumulatedDiffY = 0.f;
                         }
                     }
                     return true;
-                case (MotionEvent.ACTION_CANCEL):
+                }
+                case (MotionEvent.ACTION_POINTER_UP): {
+                    final int pointerIndex = event.getActionIndex();
+                    final int pointerId = event.getPointerId(pointerIndex);
+                    if (pointerId == mPointerID1) {
+                        mPointerID1 = mPointerID2;
+                        final int pointerIndex1 = event.findPointerIndex(mPointerID1);
+                        mOldX = event.getX(pointerIndex1);
+                        mOldY = event.getY(pointerIndex1);
+                        mPointerID2 = MotionEvent.INVALID_POINTER_ID;
+                    } else if (pointerId != mPointerID2) {
+                        return true;
+                    }
+                    if (event.getPointerCount() > 2) {
+                        final int pointerIndex1 = event.findPointerIndex(mPointerID1);
+                        int newPointerIndex = MotionEvent.INVALID_POINTER_ID;
+                        for (int i = 0; i < event.getPointerCount(); ++i) {
+                            if (i != pointerIndex && i != pointerIndex1) {
+                                newPointerIndex = i;
+                                break;
+                            }
+                        }
+                        mPointerID2 = event.getPointerId(newPointerIndex);
+                        mOldY2 = event.getY(newPointerIndex);
+                    }
                     return true;
-                case (MotionEvent.ACTION_OUTSIDE):
+                }
+                case (MotionEvent.ACTION_UP): {
+                    final int pointerIndex = event.findPointerIndex(mPointerID1);
+                    if ((Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
+                            (Math.abs(event.getY(pointerIndex) - initY) < mTaptol)) {
+                        if (event.getEventTime() - mDownEventTime < mTapdelay) {
+                            sendBytes(new byte[]{LEFTCLICK});
+                        } else {
+                            sendBytes(new byte[]{RIGHTCLICK});
+                        }
+                    }
+                    mPointerID1 = MotionEvent.INVALID_POINTER_ID;
                     return true;
+                }
+                case (MotionEvent.ACTION_CANCEL): {
+                    mPointerID1 = MotionEvent.INVALID_POINTER_ID;
+                    mPointerID2 = MotionEvent.INVALID_POINTER_ID;
+                    return true;
+                }
                 default:
                     return false;
             }
