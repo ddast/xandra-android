@@ -380,12 +380,14 @@ public class MainActivity extends AppCompatActivity {
         private float mOldY2;
         private float accumulatedDiffY;
         private long mDownEventTime;
+        boolean isMultiTouchGesture;
 
         private boolean processTouchEvent(MotionEvent event) {
             int action = MotionEventCompat.getActionMasked(event);
 
             switch(action) {
                 case (MotionEvent.ACTION_DOWN): {
+                    isMultiTouchGesture = false;
                     final int pointerIndex = event.getActionIndex();
                     mPointerID1 = event.getPointerId(pointerIndex);
                     initX = mOldX = event.getX(pointerIndex);
@@ -394,6 +396,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
                 case (MotionEvent.ACTION_POINTER_DOWN): {
+                    isMultiTouchGesture = true;
                     if (event.getPointerCount() == 2) {
                         final int pointerIndex = event.getActionIndex();
                         mPointerID2 = event.getPointerId(pointerIndex);
@@ -454,7 +457,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case (MotionEvent.ACTION_UP): {
                     final int pointerIndex = event.findPointerIndex(mPointerID1);
-                    if ((Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
+                    if (!isMultiTouchGesture &&
+                            (Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
                             (Math.abs(event.getY(pointerIndex) - initY) < mTaptol)) {
                         if (event.getEventTime() - mDownEventTime < mTapdelay) {
                             sendBytes(new byte[]{LEFTCLICK});
