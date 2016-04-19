@@ -54,61 +54,174 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/layout_keys"
         android:layout_alignParentBottom="true"
-        android:padding="0dp"
-        android:visibility="gone"
-        android:id="@+id/layout_keys">
+        android:visibility="gone">
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_esc"
-            android:id="@+id/button_esc" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp">
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_tab"
-            android:id="@+id/button_tab" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_esc"
+                android:id="@+id/button_esc" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_ctrl"
-            android:id="@+id/button_ctrl" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_tab"
+                android:id="@+id/button_tab" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_sup"
-            android:id="@+id/button_sup" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_ctrl"
+                android:id="@+id/button_ctrl" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_alt"
-            android:id="@+id/button_alt" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_sup"
+                android:id="@+id/button_sup" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_left"
-            android:id="@+id/button_left" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_alt"
+                android:id="@+id/button_alt" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_down"
-            android:id="@+id/button_down" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_left"
+                android:id="@+id/button_left" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_up"
-            android:id="@+id/button_up" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_down"
+                android:id="@+id/button_down" />
 
-        <Button
-            style="@style/KeyButton"
-            android:text="@string/button_right"
-            android:id="@+id/button_right" />
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_up"
+                android:id="@+id/button_up" />
 
-    </LinearLayout>
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_right"
+                android:id="@+id/button_right" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_voldn"
+                android:id="@+id/button_voldn" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_volup"
+                android:id="@+id/button_volup" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_voltog"
+                android:id="@+id/button_voltog" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_ins"
+                android:id="@+id/button_ins" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_del"
+                android:id="@+id/button_del" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_home"
+                android:id="@+id/button_home" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_end"
+                android:id="@+id/button_end" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_pgup"
+                android:id="@+id/button_pgup" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_pgdn"
+                android:id="@+id/button_pgdn" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f1"
+                android:id="@+id/button_f1" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f2"
+                android:id="@+id/button_f2" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f3"
+                android:id="@+id/button_f3" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f4"
+                android:id="@+id/button_f4" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f5"
+                android:id="@+id/button_f5" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f6"
+                android:id="@+id/button_f6" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f7"
+                android:id="@+id/button_f7" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f8"
+                android:id="@+id/button_f8" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f9"
+                android:id="@+id/button_f9" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f10"
+                android:id="@+id/button_f10" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f11"
+                android:id="@+id/button_f11" />
+
+            <Button
+                style="@style/KeyButton"
+                android:text="@string/button_f12"
+                android:id="@+id/button_f12" />
+
+        </LinearLayout>
+
+
+    </HorizontalScrollView>
+
 
 
 </RelativeLayout>

@@ -35,6 +35,26 @@
     <string name="button_up">▲</string>
     <string name="button_down">▼</string>
     <string name="button_right">▶</string>
-
+    <string name="button_voldn">♪-</string>
+    <string name="button_volup">♪+</string>
+    <string name="button_voltog">♪⊘</string>
+    <string name="button_ins">ins</string>
+    <string name="button_del">del</string>
+    <string name="button_home">home</string>
+    <string name="button_end">end</string>
+    <string name="button_pgup">PgUp</string>
+    <string name="button_pgdn">PgDn</string>
+    <string name="button_f1">f1</string>
+    <string name="button_f2">f2</string>
+    <string name="button_f3">f3</string>
+    <string name="button_f4">f4</string>
+    <string name="button_f5">f5</string>
+    <string name="button_f6">f6</string>
+    <string name="button_f7">f7</string>
+    <string name="button_f8">f8</string>
+    <string name="button_f9">f9</string>
+    <string name="button_f10">f10</string>
+    <string name="button_f11">f11</string>
+    <string name="button_f12">f12</string>
 
 </resources>
