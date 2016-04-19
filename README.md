@@ -26,7 +26,8 @@ your PC.
   It does not matter how the text is entered, thus, all input methods such as
   typing, pasting or speech recognition should work.
 * The … button toggles a special keys bar containing *Escape*, *Tab*, *Ctrl*,
-  *Super*, *Alt* and the arrow keys.
+  *Super*, *Alt*, arrow keys, volume keys, *Insert*, *Delete*, *Home*,
+  *End*, *PageUp/Down* and function keys.
   The keys *Ctrl*, *Super* and *Alt* are usually used as modifier keys and
   therefore wait for the next character.
   So hitting *Ctrl* and then *q* will be interpreted as the combination
