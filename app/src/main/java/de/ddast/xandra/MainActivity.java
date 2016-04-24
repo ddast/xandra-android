@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private long mTapdelay;
     private float mTaptol;
     private float mSensitivity;
+    private float mAcceleration;
     private float mScrollThreshold;
     private NoCursorEditText mBufferEdit;
     private HorizontalScrollView mLayoutKeys;
@@ -127,8 +128,9 @@ public class MainActivity extends AppCompatActivity {
                                          this.getString(R.string.pref_taptol), ""));
         mSensitivity     = Float.valueOf(sharedPreferences.getString(
                                          this.getString(R.string.pref_sensitivity), ""));
+        mAcceleration    = Float.valueOf(sharedPreferences.getString(
+                                         this.getString(R.string.pref_acceleration), ""));
         mScrollThreshold = Float.valueOf(sharedPreferences.getString(
-
                                          this.getString(R.string.pref_scrollthreshold), ""));
 
         mServerAddr    = getIntent().getStringExtra(ConnectActivity.SERVERADDR);
@@ -603,14 +605,15 @@ public class MainActivity extends AppCompatActivity {
     private class MouseGestureDetector {
         private int mPointerID1 = MotionEvent.INVALID_POINTER_ID;
         private int mPointerID2 = MotionEvent.INVALID_POINTER_ID;
-        private float initX;
-        private float initY;
-        private float mOldX;
-        private float mOldY;
-        private float mOldY2;
-        private float accumulatedDiffY;
-        private long mDownEventTime;
+        private float initX, initY, mOldX, mOldY, mOldY2, accumulatedDiffY;
+        private long mDownEventTime, oldTime;
         boolean isMultiTouchGesture;
+
+        private int calcMouseMovement(float len, long time) {
+            double velocity = (len < 0.0f ? -1.0 : 1.0)
+                              * Math.pow(Math.abs(10.0*len/time), mAcceleration);
+            return (int) Math.round(mSensitivity*velocity*time/10.0);
+        }
 
         private boolean processTouchEvent(MotionEvent event) {
             int action = MotionEventCompat.getActionMasked(event);
@@ -622,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
                     mPointerID1 = event.getPointerId(pointerIndex);
                     initX = mOldX = event.getX(pointerIndex);
                     initY = mOldY = event.getY(pointerIndex);
-                    mDownEventTime = event.getEventTime();
+                    mDownEventTime = oldTime = event.getEventTime();
                     return true;
                 }
                 case (MotionEvent.ACTION_POINTER_DOWN): {
@@ -641,9 +644,11 @@ public class MainActivity extends AppCompatActivity {
                     float diffY = event.getY(pointerIndex) - mOldY;
                     mOldX = event.getX(pointerIndex);
                     mOldY = event.getY(pointerIndex);
+                    long diffT = event.getEventTime() - oldTime;
+                    oldTime = event.getEventTime();
                     if (event.getPointerCount() == 1) {
-                        sendMouse(Math.round(mSensitivity * diffX),
-                                  Math.round(mSensitivity * diffY));
+                        sendMouse(calcMouseMovement(diffX, diffT),
+                                  calcMouseMovement(diffY, diffT));
                     } else {
                         final int pointerIndex2 = event.findPointerIndex(mPointerID2);
                         float diffY2 = event.getY(pointerIndex2) - mOldY2;
