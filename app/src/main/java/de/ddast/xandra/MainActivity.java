@@ -605,14 +605,19 @@ public class MainActivity extends AppCompatActivity {
     private class MouseGestureDetector {
         private int mPointerID1 = MotionEvent.INVALID_POINTER_ID;
         private int mPointerID2 = MotionEvent.INVALID_POINTER_ID;
-        private float initX, initY, mOldX, mOldY, mOldY2, accumulatedDiffY;
+        private float initX, initY, mOldX, mOldY, mOldY2;
+        private double accumulatedDiffY;
         private long mDownEventTime, oldTime;
         boolean isMultiTouchGesture;
 
-        private int calcMouseMovement(float len, long time) {
+        private double acceleratedMouseMovement(float len, long time) {
             double velocity = (len < 0.0f ? -1.0 : 1.0)
-                              * Math.pow(Math.abs(10.0*len/time), mAcceleration);
-            return (int) Math.round(mSensitivity*velocity*time/10.0);
+                    * Math.pow(Math.abs(10.0*len/time), mAcceleration);
+            return velocity*time/10.0;
+        }
+
+        private int calcMouseMovement(float len, long time) {
+            return (int) Math.round(mSensitivity*acceleratedMouseMovement(len, time));
         }
 
         private boolean processTouchEvent(MotionEvent event) {
@@ -634,7 +639,7 @@ public class MainActivity extends AppCompatActivity {
                         final int pointerIndex = event.getActionIndex();
                         mPointerID2 = event.getPointerId(pointerIndex);
                         mOldY2 = event.getY(pointerIndex);
-                        accumulatedDiffY = 0.0f;
+                        accumulatedDiffY = 0.0;
                     }
                     return true;
                 }
@@ -653,13 +658,14 @@ public class MainActivity extends AppCompatActivity {
                         final int pointerIndex2 = event.findPointerIndex(mPointerID2);
                         float diffY2 = event.getY(pointerIndex2) - mOldY2;
                         mOldY2 = event.getY(pointerIndex2);
-                        accumulatedDiffY += 0.5f * (diffY + diffY2);
-                        if (accumulatedDiffY < -mScrollThreshold) {
+                        accumulatedDiffY += acceleratedMouseMovement(0.5f*(diffY + diffY2), diffT);
+                        while (accumulatedDiffY < -mScrollThreshold) {
                             sendSpecialKey(WHEELUP);
-                            accumulatedDiffY = 0.f;
-                        } else if (accumulatedDiffY > mScrollThreshold) {
+                            accumulatedDiffY += mScrollThreshold;
+                        }
+                        while (accumulatedDiffY > mScrollThreshold) {
                             sendSpecialKey(WHEELDOWN);
-                            accumulatedDiffY = 0.f;
+                            accumulatedDiffY -= mScrollThreshold;
                         }
                     }
                     return true;
