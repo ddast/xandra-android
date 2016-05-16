@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private int mPort;
     private long mTapdelay;
     private float mTaptol, mSensitivity, mAcceleration, mScrollThreshold;
-    private int mSpecialKeysVisibility = View.INVISIBLE;
+    private int mSpecialKeysVisibility = View.GONE;
     private NoCursorEditText mBufferEdit;
     private HorizontalScrollView mLayoutKeys;
     private Button mToggleButton;
