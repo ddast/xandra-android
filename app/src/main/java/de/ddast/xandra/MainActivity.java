@@ -93,10 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int mPort;
     private long mTapdelay;
-    private float mTaptol;
-    private float mSensitivity;
-    private float mAcceleration;
-    private float mScrollThreshold;
+    private float mTaptol, mSensitivity, mAcceleration, mScrollThreshold;
     private NoCursorEditText mBufferEdit;
     private HorizontalScrollView mLayoutKeys;
     private Button mToggleButton;
