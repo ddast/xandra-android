@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG              = "MainActivity";
 
-    private static final long HEARTBEAT_INTERVAL = 3000L;
+    private static final long HEARTBEAT_INTERVAL = 1000L;
 
     private static final byte MOUSEEVENT         = (byte)0xff;
     private static final int  MOUSEEVENTLEN       = 9;
