@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private int mPort;
     private long mTapdelay;
     private float mTaptol, mSensitivity, mAcceleration, mScrollThreshold;
+    private int mSpecialKeysVisibility = View.INVISIBLE;
     private NoCursorEditText mBufferEdit;
     private HorizontalScrollView mLayoutKeys;
     private Button mToggleButton;
@@ -145,13 +146,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void initKeyboardButtons() {
         mLayoutKeys = (HorizontalScrollView)findViewById(R.id.layout_keys);
+        Assert.assertNotNull(mLayoutKeys);
         mToggleButton = (Button)findViewById(R.id.button_togglekeys);
+        Assert.assertNotNull(mToggleButton);
         mToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int newVisibility = mLayoutKeys.getVisibility() == View.VISIBLE ? View.GONE :
-                        View.VISIBLE;
-                mLayoutKeys.setVisibility(newVisibility);
+                mSpecialKeysVisibility = mLayoutKeys.getVisibility() == View.VISIBLE ? View.GONE :
+                                                                                       View.VISIBLE;
+                mLayoutKeys.setVisibility(mSpecialKeysVisibility);
             }
         });
 
@@ -515,6 +518,11 @@ public class MainActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager)
                     getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
+        if (mSpecialKeysVisibility == View.VISIBLE) {
+            mLayoutKeys = (HorizontalScrollView) findViewById(R.id.layout_keys);
+            Assert.assertNotNull(mLayoutKeys);
+            mLayoutKeys.setVisibility(View.VISIBLE);
         }
     }
 
