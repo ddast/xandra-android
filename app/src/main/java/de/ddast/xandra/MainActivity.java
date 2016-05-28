@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -104,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler;
     private Runnable mSendHeartbeat;
     private MouseGestureDetector mMouseGestureDetector;
+    private PowerManager mPowerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +120,12 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
+
+        if (sharedPreferences.getBoolean(this.getString(R.string.pref_lock), false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        }
 
         mPort            = Integer.valueOf(sharedPreferences.getString(
                                            this.getString(R.string.pref_port), ""));
@@ -564,7 +573,7 @@ public class MainActivity extends AppCompatActivity {
     private class SendHeartbeat implements Runnable {
         @Override
         public void run() {
-            if (!sendBytes(new byte[] {HEARTBEAT})) {
+            if ((mPowerManager.isScreenOn()) && (!sendBytes(new byte[] {HEARTBEAT}))) {
                 Log.e(TAG, "Hearbeat error, try to reconnect");
                 new ConnectToServer().execute();
             } else {

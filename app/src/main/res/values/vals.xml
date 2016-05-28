@@ -11,6 +11,9 @@
     <string name="pref_port">pref_port</string>
     <string name="pref_port_default">64296</string>
 
+    <string name="pref_lock">pref_lock</string>
+    <string name="pref_lock_default">false</string>
+
     <string name="pref_sensitivity">pref_sensitivity</string>
     <string name="pref_sensitivity_default">1.0</string>
 
