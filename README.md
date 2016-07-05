@@ -38,8 +38,9 @@ your PC.
   the space for mouse control).
   A short click is interpreted as a left mouse click and a long press as a
   right mouse click.
-  Vertical scrolling works as a two-finger gesture (actually the mean vertical
-  movement of your two fingers is used, so it is possible to touch with the
-  thumb of one hand and use one finger of the other hand for movement).
+  Vertical scrolling works as a two-finger gesture (actually the maximum
+  vertical movement of your two fingers is used, so it is possible to touch
+  with the thumb of one hand and use one finger of the other hand for
+  movement).
 
   
