@@ -20,6 +20,7 @@ package de.ddast.xandra;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -634,97 +635,135 @@ public class MainActivity extends AppCompatActivity {
             return (int) Math.round(mSensitivity*acceleratedMouseMovement(len, time));
         }
 
+        private void initFirstPointer(MotionEvent event) {
+            final int pointerIndex = event.getActionIndex();
+            mPointerID1 = event.getPointerId(pointerIndex);
+            initX = mOldX = event.getX(pointerIndex);
+            initY = mOldY = event.getY(pointerIndex);
+            mDownEventTime = oldTime = event.getEventTime();
+        }
+
+        private void initSecondPointer(MotionEvent event) {
+            final int pointerIndex = event.getActionIndex();
+            mPointerID2 = event.getPointerId(pointerIndex);
+            mOldY2 = event.getY(pointerIndex);
+            accumulatedDiffY = 0.0;
+        }
+
+        private void sendMouseOrScrollEvent(MotionEvent event) {
+            final int pointerIndex = event.findPointerIndex(mPointerID1);
+            float diffX = event.getX(pointerIndex) - mOldX;
+            float diffY = event.getY(pointerIndex) - mOldY;
+            mOldX = event.getX(pointerIndex);
+            mOldY = event.getY(pointerIndex);
+            long diffT = event.getEventTime() - oldTime;
+            oldTime = event.getEventTime();
+            if (event.getPointerCount() == 1) {
+                sendMouse(calcMouseMovement(diffX, diffT),
+                        calcMouseMovement(diffY, diffT));
+            } else if (event.getPointerCount() == 2) {
+                final int pointerIndex2 = event.findPointerIndex(mPointerID2);
+                float diffY2 = event.getY(pointerIndex2) - mOldY2;
+                mOldY2 = event.getY(pointerIndex2);
+                float maxDiffY = Math.abs(diffY) > Math.abs(diffY2) ? diffY : diffY2;
+                accumulatedDiffY += acceleratedMouseMovement(maxDiffY, diffT);
+                while (accumulatedDiffY < -mScrollThreshold) {
+                    sendSpecialKey(WHEELUP);
+                    accumulatedDiffY += mScrollThreshold;
+                }
+                while (accumulatedDiffY > mScrollThreshold) {
+                    sendSpecialKey(WHEELDOWN);
+                    accumulatedDiffY -= mScrollThreshold;
+                }
+            }
+        }
+
+        private void rearrangePointerIDs(MotionEvent event) {
+            final int pointerIndex = event.getActionIndex();
+            final int pointerId = event.getPointerId(pointerIndex);
+            if (pointerId == mPointerID1) {
+                mPointerID1 = mPointerID2;
+                final int pointerIndex1 = event.findPointerIndex(mPointerID1);
+                mOldX = event.getX(pointerIndex1);
+                mOldY = event.getY(pointerIndex1);
+                mPointerID2 = MotionEvent.INVALID_POINTER_ID;
+            } else if (pointerId != mPointerID2) {
+                return;
+            }
+            if (event.getPointerCount() > 2) {
+                final int pointerIndex1 = event.findPointerIndex(mPointerID1);
+                int newPointerIndex = MotionEvent.INVALID_POINTER_ID;
+                for (int i = 0; i < event.getPointerCount(); ++i) {
+                    if (i != pointerIndex && i != pointerIndex1) {
+                        newPointerIndex = i;
+                        break;
+                    }
+                }
+                mPointerID2 = event.getPointerId(newPointerIndex);
+                mOldY2 = event.getY(newPointerIndex);
+            }
+        }
+
+        private boolean isSingleTouchTap(MotionEvent event) {
+            final int pointerIndex = event.findPointerIndex(mPointerID1);
+            return (!isMultiTouchGesture &&
+                    (Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
+                    (Math.abs(event.getY(pointerIndex) - initY) < mTaptol) &&
+                    (event.getEventTime() - mDownEventTime < mTapdelay));
+        }
+
+        private boolean singleTouchHasNotMoved() {
+            return (!isMultiTouchGesture &&
+                    (Math.abs(mOldX - initX) < mTaptol) &&
+                    (Math.abs(mOldY - initY) < mTaptol));
+        }
+
+        private CountDownTimer rightClickCountDown = new CountDownTimer(2*mTapdelay, 3*mTapdelay) {
+            @Override
+            public void onTick(long millisUntilFinished) {}
+            @Override
+            public void onFinish() {
+                if (singleTouchHasNotMoved()) {
+                    sendSpecialKey(RIGHTCLICK);
+                }
+            }
+        };
+
         private boolean processTouchEvent(MotionEvent event) {
             int action = MotionEventCompat.getActionMasked(event);
 
             switch(action) {
                 case (MotionEvent.ACTION_DOWN): {
                     isMultiTouchGesture = false;
-                    final int pointerIndex = event.getActionIndex();
-                    mPointerID1 = event.getPointerId(pointerIndex);
-                    initX = mOldX = event.getX(pointerIndex);
-                    initY = mOldY = event.getY(pointerIndex);
-                    mDownEventTime = oldTime = event.getEventTime();
+                    initFirstPointer(event);
+                    rightClickCountDown.start();
                     return true;
                 }
                 case (MotionEvent.ACTION_POINTER_DOWN): {
                     isMultiTouchGesture = true;
                     if (event.getPointerCount() == 2) {
-                        final int pointerIndex = event.getActionIndex();
-                        mPointerID2 = event.getPointerId(pointerIndex);
-                        mOldY2 = event.getY(pointerIndex);
-                        accumulatedDiffY = 0.0;
+                        initSecondPointer(event);
                     }
                     return true;
                 }
                 case (MotionEvent.ACTION_MOVE): {
-                    final int pointerIndex = event.findPointerIndex(mPointerID1);
-                    float diffX = event.getX(pointerIndex) - mOldX;
-                    float diffY = event.getY(pointerIndex) - mOldY;
-                    mOldX = event.getX(pointerIndex);
-                    mOldY = event.getY(pointerIndex);
-                    long diffT = event.getEventTime() - oldTime;
-                    oldTime = event.getEventTime();
-                    if (event.getPointerCount() == 1) {
-                        sendMouse(calcMouseMovement(diffX, diffT),
-                                  calcMouseMovement(diffY, diffT));
-                    } else {
-                        final int pointerIndex2 = event.findPointerIndex(mPointerID2);
-                        float diffY2 = event.getY(pointerIndex2) - mOldY2;
-                        mOldY2 = event.getY(pointerIndex2);
-                        accumulatedDiffY += acceleratedMouseMovement(0.5f*(diffY + diffY2), diffT);
-                        while (accumulatedDiffY < -mScrollThreshold) {
-                            sendSpecialKey(WHEELUP);
-                            accumulatedDiffY += mScrollThreshold;
-                        }
-                        while (accumulatedDiffY > mScrollThreshold) {
-                            sendSpecialKey(WHEELDOWN);
-                            accumulatedDiffY -= mScrollThreshold;
-                        }
-                    }
+                    sendMouseOrScrollEvent(event);
                     return true;
                 }
                 case (MotionEvent.ACTION_POINTER_UP): {
-                    final int pointerIndex = event.getActionIndex();
-                    final int pointerId = event.getPointerId(pointerIndex);
-                    if (pointerId == mPointerID1) {
-                        mPointerID1 = mPointerID2;
-                        final int pointerIndex1 = event.findPointerIndex(mPointerID1);
-                        mOldX = event.getX(pointerIndex1);
-                        mOldY = event.getY(pointerIndex1);
-                        mPointerID2 = MotionEvent.INVALID_POINTER_ID;
-                    } else if (pointerId != mPointerID2) {
-                        return true;
-                    }
-                    if (event.getPointerCount() > 2) {
-                        final int pointerIndex1 = event.findPointerIndex(mPointerID1);
-                        int newPointerIndex = MotionEvent.INVALID_POINTER_ID;
-                        for (int i = 0; i < event.getPointerCount(); ++i) {
-                            if (i != pointerIndex && i != pointerIndex1) {
-                                newPointerIndex = i;
-                                break;
-                            }
-                        }
-                        mPointerID2 = event.getPointerId(newPointerIndex);
-                        mOldY2 = event.getY(newPointerIndex);
-                    }
+                    rearrangePointerIDs(event);
                     return true;
                 }
                 case (MotionEvent.ACTION_UP): {
-                    final int pointerIndex = event.findPointerIndex(mPointerID1);
-                    if (!isMultiTouchGesture &&
-                            (Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
-                            (Math.abs(event.getY(pointerIndex) - initY) < mTaptol)) {
-                        if (event.getEventTime() - mDownEventTime < mTapdelay) {
-                            sendSpecialKey(LEFTCLICK);
-                        } else {
-                            sendSpecialKey(RIGHTCLICK);
-                        }
+                    rightClickCountDown.cancel();
+                    if (isSingleTouchTap(event)) {
+                        sendSpecialKey(LEFTCLICK);
                     }
                     mPointerID1 = MotionEvent.INVALID_POINTER_ID;
                     return true;
                 }
                 case (MotionEvent.ACTION_CANCEL): {
+                    rightClickCountDown.cancel();
                     mPointerID1 = MotionEvent.INVALID_POINTER_ID;
                     mPointerID2 = MotionEvent.INVALID_POINTER_ID;
                     return true;
@@ -735,5 +774,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
-
