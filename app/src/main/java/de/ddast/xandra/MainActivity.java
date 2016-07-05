@@ -660,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
             oldTime = event.getEventTime();
             if (event.getPointerCount() == 1) {
                 sendMouse(calcMouseMovement(diffX, diffT),
-                        calcMouseMovement(diffY, diffT));
+                          calcMouseMovement(diffY, diffT));
             } else if (event.getPointerCount() == 2) {
                 final int pointerIndex2 = event.findPointerIndex(mPointerID2);
                 float diffY2 = event.getY(pointerIndex2) - mOldY2;
@@ -681,14 +681,15 @@ public class MainActivity extends AppCompatActivity {
         private void rearrangePointerIDs(MotionEvent event) {
             final int pointerIndex = event.getActionIndex();
             final int pointerId = event.getPointerId(pointerIndex);
+            if (pointerId != mPointerID1 && pointerId != mPointerID2) {
+                return;
+            }
             if (pointerId == mPointerID1) {
                 mPointerID1 = mPointerID2;
                 final int pointerIndex1 = event.findPointerIndex(mPointerID1);
                 mOldX = event.getX(pointerIndex1);
                 mOldY = event.getY(pointerIndex1);
                 mPointerID2 = MotionEvent.INVALID_POINTER_ID;
-            } else if (pointerId != mPointerID2) {
-                return;
             }
             if (event.getPointerCount() > 2) {
                 final int pointerIndex1 = event.findPointerIndex(mPointerID1);
