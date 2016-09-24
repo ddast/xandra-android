@@ -48,7 +48,7 @@ import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG              = "MainActivity";
+    private static final String TAG              = "xandra";
 
     private static final long HEARTBEAT_INTERVAL = 1000L;
 
@@ -480,38 +480,21 @@ public class MainActivity extends AppCompatActivity {
                               .put((byte)(0x80 | distanceY>>>6))
                               .put((byte)(0x80 | distanceY & 0x3f))
                               .array();
-        sendBytes(bA);
+        new SendBytes().execute(bA);
     }
 
     private void sendUTF8(String s) {
         try {
             byte[] utf8Repr = s.getBytes("UTF8");
-            sendBytes(utf8Repr);
+            new SendBytes().execute(utf8Repr);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "Encoding failure");
         }
     }
 
-    private boolean sendBytes(byte[] bA) {
-        if (mOutput == null) {
-            Log.e(TAG, "Tried to send, but not yet connected");
-            setUiToDisconnected();
-            return false;
-        }
-
-        try {
-            mOutput.write(bA);
-        } catch (IOException e) {
-            Log.e(TAG, "IO error while sending");
-            setUiToDisconnected();
-            return false;
-        }
-        return true;
-    }
-
     private void sendSpecialKey(byte b) {
-        sendBytes(new byte[] {(byte)0xfc, (byte)0x80, (byte)0x80, (byte)0x80, (byte)0x80,
-                              (byte)(0x80 | b)});
+        new SendBytes().execute(new byte[] {(byte)0xfc, (byte)0x80, (byte)0x80, (byte)0x80,
+                                (byte)0x80, (byte)(0x80 | b)});
     }
 
     private void setUiToDisconnected() {
@@ -528,6 +511,10 @@ public class MainActivity extends AppCompatActivity {
         mToggleButton.setEnabled(true);
     }
 
+    private boolean isConnected() {
+        return mBufferEdit.isEnabled();
+    }
+
     private void showSoftKeyboard(View view) {
         if (view.requestFocus()) {
             InputMethodManager imm = (InputMethodManager)
@@ -538,6 +525,31 @@ public class MainActivity extends AppCompatActivity {
             mLayoutKeys = (HorizontalScrollView) findViewById(R.id.layout_keys);
             Assert.assertNotNull(mLayoutKeys);
             mLayoutKeys.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private class SendBytes extends AsyncTask<byte[], Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(byte[]... bA) {
+            if (mOutput == null) {
+                Log.e(TAG, "Tried to send, but not yet connected");
+                return false;
+            }
+
+            try {
+                mOutput.write(bA[0]);
+            } catch (IOException e) {
+                Log.e(TAG, "IO error while sending");
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                setUiToDisconnected();
+            }
         }
     }
 
@@ -579,7 +591,10 @@ public class MainActivity extends AppCompatActivity {
     private class SendHeartbeat implements Runnable {
         @Override
         public void run() {
-            if ((mPowerManager.isScreenOn()) && (!sendBytes(new byte[] {HEARTBEAT}))) {
+            if (mPowerManager.isScreenOn()) {
+                new SendBytes().execute(new byte[]{HEARTBEAT});
+            }
+            if (!isConnected()) {
                 Log.e(TAG, "Heartbeat error, try to reconnect");
                 new ConnectToServer().execute();
             } else {
