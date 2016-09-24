@@ -52,12 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final long HEARTBEAT_INTERVAL = 1000L;
 
-    private static final byte MOUSEEVENT         = (byte)0xff;
-    private static final int  MOUSEEVENTLEN       = 9;
-
     private static final byte HEARTBEAT          = (byte)0x00;
 
-    private static final byte SPECIALKEY         = (byte)0xfe;
     private static final byte LEFTCLICK          = (byte)0x00;
     private static final byte RIGHTCLICK         = (byte)0x01;
     private static final byte WHEELUP            = (byte)0x02;
@@ -473,9 +469,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendMouse(int distanceX, int distanceY) {
-        byte[] bA = ByteBuffer.allocate(MOUSEEVENTLEN).put(MOUSEEVENT)
-                                                      .putInt(distanceX)
-                                                      .putInt(distanceY).array();
+        boolean isNegX = distanceX < 0;
+        boolean isNegY = distanceY < 0;
+        distanceX = Math.abs(distanceX) & 0xfff;
+        distanceY = Math.abs(distanceY) & 0xfff;
+        byte[] bA = ByteBuffer.allocate(5)
+                              .put((byte)(0xf8 | (isNegX ? 0x02 : 0x00) | distanceX>>>11))
+                              .put((byte)(0x80 | distanceX>>>5 & 0x3f))
+                              .put((byte)(0x80 | (distanceX & 0x1f)<<1 | (isNegY ? 0x01 : 0x00)))
+                              .put((byte)(0x80 | distanceY>>>6))
+                              .put((byte)(0x80 | distanceY & 0x3f))
+                              .array();
         sendBytes(bA);
     }
 
@@ -506,7 +510,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendSpecialKey(byte b) {
-        sendBytes(new byte[] {SPECIALKEY, b});
+        sendBytes(new byte[] {(byte)0xfc, (byte)0x80, (byte)0x80, (byte)0x80, (byte)0x80,
+                              (byte)(0x80 | b)});
     }
 
     private void setUiToDisconnected() {
@@ -575,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if ((mPowerManager.isScreenOn()) && (!sendBytes(new byte[] {HEARTBEAT}))) {
-                Log.e(TAG, "Hearbeat error, try to reconnect");
+                Log.e(TAG, "Heartbeat error, try to reconnect");
                 new ConnectToServer().execute();
             } else {
                 mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
@@ -607,12 +612,9 @@ public class MainActivity extends AppCompatActivity {
             if (before == 0) {
                 sendUTF8(s.subSequence(start, start + count).toString());
             } else if (count == 0) {
-                byte[] bA = new byte[2*before];
-                for (int i = 0; i < 2*before-1; i+=2) {
-                    bA[i]   = SPECIALKEY;
-                    bA[i+1] = BACKSPACE;
+                for (int i = 0; i < before; ++i) {
+                    sendSpecialKey(BACKSPACE);
                 }
-                sendBytes(bA);
             }
         }
     }

@@ -35,7 +35,6 @@ public class ConnectActivity extends AppCompatActivity {
     public static boolean themeHasChanged = false;
 
     private EditText mServerEdit;
-    private Button mConnectButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +51,7 @@ public class ConnectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_connect);
 
         mServerEdit = (EditText)findViewById(R.id.server_edit);
-        mConnectButton = (Button)findViewById(R.id.connect_button);
+        Button mConnectButton = (Button)findViewById(R.id.connect_button);
 
         SharedPreferences settings = getPreferences(MODE_PRIVATE);
         String serverAddr = settings.getString(SERVERADDR, "");
