@@ -55,40 +55,41 @@ public class MainActivity extends AppCompatActivity {
     private static final byte HEARTBEAT          = (byte)0x00;
 
     private static final byte LEFTCLICK          = (byte)0x00;
-    private static final byte RIGHTCLICK         = (byte)0x01;
-    private static final byte WHEELUP            = (byte)0x02;
-    private static final byte WHEELDOWN          = (byte)0x03;
-    private static final byte CTRL               = (byte)0x04;
-    private static final byte SUP                = (byte)0x05;
-    private static final byte ALT                = (byte)0x06;
-    private static final byte BACKSPACE          = (byte)0x07;
-    private static final byte ESCAPE             = (byte)0x08;
-    private static final byte TAB                = (byte)0x09;
-    private static final byte LEFT               = (byte)0x0a;
-    private static final byte DOWN               = (byte)0x0b;
-    private static final byte UP                 = (byte)0x0c;
-    private static final byte RIGHT              = (byte)0x0d;
-    private static final byte VOLDN              = (byte)0x0e;
-    private static final byte VOLUP              = (byte)0x0f;
-    private static final byte VOLTOG             = (byte)0x10;
-    private static final byte INS                = (byte)0x11;
-    private static final byte DEL                = (byte)0x12;
-    private static final byte HOME               = (byte)0x13;
-    private static final byte END                = (byte)0x14;
-    private static final byte PGUP               = (byte)0x15;
-    private static final byte PGDN               = (byte)0x16;
-    private static final byte F1                 = (byte)0x17;
-    private static final byte F2                 = (byte)0x18;
-    private static final byte F3                 = (byte)0x19;
-    private static final byte F4                 = (byte)0x1a;
-    private static final byte F5                 = (byte)0x1b;
-    private static final byte F6                 = (byte)0x1c;
-    private static final byte F7                 = (byte)0x1d;
-    private static final byte F8                 = (byte)0x1e;
-    private static final byte F9                 = (byte)0x1f;
-    private static final byte F10                = (byte)0x20;
-    private static final byte F11                = (byte)0x21;
-    private static final byte F12                = (byte)0x22;
+    private static final byte MIDDLECLICK        = (byte)0x01;
+    private static final byte RIGHTCLICK         = (byte)0x02;
+    private static final byte WHEELUP            = (byte)0x03;
+    private static final byte WHEELDOWN          = (byte)0x04;
+    private static final byte CTRL               = (byte)0x05;
+    private static final byte SUP                = (byte)0x06;
+    private static final byte ALT                = (byte)0x07;
+    private static final byte BACKSPACE          = (byte)0x08;
+    private static final byte ESCAPE             = (byte)0x09;
+    private static final byte TAB                = (byte)0x0a;
+    private static final byte LEFT               = (byte)0x0b;
+    private static final byte DOWN               = (byte)0x0c;
+    private static final byte UP                 = (byte)0x0d;
+    private static final byte RIGHT              = (byte)0x0e;
+    private static final byte VOLDN              = (byte)0x0f;
+    private static final byte VOLUP              = (byte)0x10;
+    private static final byte VOLTOG             = (byte)0x11;
+    private static final byte INS                = (byte)0x12;
+    private static final byte DEL                = (byte)0x13;
+    private static final byte HOME               = (byte)0x14;
+    private static final byte END                = (byte)0x15;
+    private static final byte PGUP               = (byte)0x16;
+    private static final byte PGDN               = (byte)0x17;
+    private static final byte F1                 = (byte)0x18;
+    private static final byte F2                 = (byte)0x19;
+    private static final byte F3                 = (byte)0x1a;
+    private static final byte F4                 = (byte)0x1b;
+    private static final byte F5                 = (byte)0x1c;
+    private static final byte F6                 = (byte)0x1d;
+    private static final byte F7                 = (byte)0x1e;
+    private static final byte F8                 = (byte)0x1f;
+    private static final byte F9                 = (byte)0x20;
+    private static final byte F10                = (byte)0x21;
+    private static final byte F11                = (byte)0x22;
+    private static final byte F12                = (byte)0x23;
 
     private int mPort;
     private long mTapdelay;
@@ -165,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button escButton = (Button)findViewById(R.id.button_esc);
-        Assert.assertNotNull(escButton);
         escButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button tabButton = (Button)findViewById(R.id.button_tab);
-        Assert.assertNotNull(tabButton);
         tabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button ctrlButton = (Button)findViewById(R.id.button_ctrl);
-        Assert.assertNotNull(ctrlButton);
         ctrlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button supButton = (Button)findViewById(R.id.button_sup);
-        Assert.assertNotNull(supButton);
         supButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button altButton = (Button)findViewById(R.id.button_alt);
-        Assert.assertNotNull(altButton);
         altButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button leftButton = (Button)findViewById(R.id.button_left);
-        Assert.assertNotNull(leftButton);
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button downButton = (Button)findViewById(R.id.button_down);
-        Assert.assertNotNull(downButton);
         downButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button upButton = (Button)findViewById(R.id.button_up);
-        Assert.assertNotNull(upButton);
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button rightButton = (Button)findViewById(R.id.button_right);
-        Assert.assertNotNull(rightButton);
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -246,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button voldnButton = (Button)findViewById(R.id.button_voldn);
-        Assert.assertNotNull(voldnButton);
         voldnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button volupButton = (Button)findViewById(R.id.button_volup);
-        Assert.assertNotNull(volupButton);
         volupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -264,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button voltogButton = (Button)findViewById(R.id.button_voltog);
-        Assert.assertNotNull(voltogButton);
         voltogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -272,8 +261,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button midButton = (Button)findViewById(R.id.button_mid);
+        midButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSpecialKey(MIDDLECLICK);
+            }
+        });
+
         Button insButton = (Button)findViewById(R.id.button_ins);
-        Assert.assertNotNull(insButton);
         insButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -282,7 +278,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button delButton = (Button)findViewById(R.id.button_del);
-        Assert.assertNotNull(delButton);
         delButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button homeButton = (Button)findViewById(R.id.button_home);
-        Assert.assertNotNull(homeButton);
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -300,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button endButton = (Button)findViewById(R.id.button_end);
-        Assert.assertNotNull(endButton);
         endButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -309,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button pgupButton = (Button)findViewById(R.id.button_pgup);
-        Assert.assertNotNull(pgupButton);
         pgupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button pgdnButton = (Button)findViewById(R.id.button_pgdn);
-        Assert.assertNotNull(pgdnButton);
         pgdnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -327,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f1tButton = (Button)findViewById(R.id.button_f1);
-        Assert.assertNotNull(f1tButton);
         f1tButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -336,7 +326,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f2Button = (Button)findViewById(R.id.button_f2);
-        Assert.assertNotNull(f2Button);
         f2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -345,7 +334,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f3Button = (Button)findViewById(R.id.button_f3);
-        Assert.assertNotNull(f3Button);
         f3Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -354,7 +342,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f4Button = (Button)findViewById(R.id.button_f4);
-        Assert.assertNotNull(f4Button);
         f4Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -363,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f5Button = (Button)findViewById(R.id.button_f5);
-        Assert.assertNotNull(f5Button);
         f5Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -372,7 +358,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f6Button = (Button)findViewById(R.id.button_f6);
-        Assert.assertNotNull(f6Button);
         f6Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -381,7 +366,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f7Button = (Button)findViewById(R.id.button_f7);
-        Assert.assertNotNull(f7Button);
         f7Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -390,7 +374,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f8Button = (Button)findViewById(R.id.button_f8);
-        Assert.assertNotNull(f8Button);
         f8Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -399,7 +382,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f9Button = (Button)findViewById(R.id.button_f9);
-        Assert.assertNotNull(f9Button);
         f9Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -408,7 +390,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f10Button = (Button)findViewById(R.id.button_f10);
-        Assert.assertNotNull(f10Button);
         f10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -417,7 +398,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f11Button = (Button)findViewById(R.id.button_f11);
-        Assert.assertNotNull(f11Button);
         f11Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -426,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button f12Button = (Button)findViewById(R.id.button_f12);
-        Assert.assertNotNull(f12Button);
         f12Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

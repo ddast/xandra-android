@@ -129,6 +129,11 @@
 
             <Button
                 style="@style/KeyButton"
+                android:text="@string/button_mid"
+                android:id="@+id/button_mid" />
+
+            <Button
+                style="@style/KeyButton"
                 android:text="@string/button_ins"
                 android:id="@+id/button_ins" />
 

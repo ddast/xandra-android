@@ -42,6 +42,7 @@
     <string name="button_voldn">♪-</string>
     <string name="button_volup">♪+</string>
     <string name="button_voltog">♪⊘</string>
+    <string name="button_mid">mid</string>
     <string name="button_ins">ins</string>
     <string name="button_del">del</string>
     <string name="button_home">home</string>
