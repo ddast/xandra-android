@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     private static final byte F10                = (byte)0x21;
     private static final byte F11                = (byte)0x22;
     private static final byte F12                = (byte)0x23;
+    private static final byte LEFTMOUSEDOWN      = (byte)0x24;
+    private static final byte LEFTMOUSEUP        = (byte)0x25;
 
     private int mPort;
     private long mTapdelay;
@@ -619,7 +621,7 @@ public class MainActivity extends AppCompatActivity {
         private float initX, initY, mOldX, mOldY, mOldY2;
         private double accumulatedDiffY;
         private long mDownEventTime, oldTime;
-        boolean isMultiTouchGesture;
+        boolean isMultiTouchGesture, isDragAndDrop;
 
         private double acceleratedMouseMovement(float len, long time) {
             double velocity = (len < 0.0f ? -1.0 : 1.0)
@@ -703,10 +705,9 @@ public class MainActivity extends AppCompatActivity {
 
         private boolean isSingleTouchTap(MotionEvent event) {
             final int pointerIndex = event.findPointerIndex(mPointerID1);
-            return (!isMultiTouchGesture &&
-                    (Math.abs(event.getX(pointerIndex) - initX) < mTaptol) &&
-                    (Math.abs(event.getY(pointerIndex) - initY) < mTaptol) &&
-                    (event.getEventTime() - mDownEventTime < mTapdelay));
+            mOldX = event.getX(pointerIndex);
+            mOldY = event.getY(pointerIndex);
+            return singleTouchHasNotMoved() && (event.getEventTime() - mDownEventTime < mTapdelay);
         }
 
         private boolean singleTouchHasNotMoved() {
@@ -715,12 +716,24 @@ public class MainActivity extends AppCompatActivity {
                     (Math.abs(mOldY - initY) < mTaptol));
         }
 
+
+        private CountDownTimer leftClickCountDown = new CountDownTimer(mTapdelay, 2*mTapdelay) {
+            @Override
+            public void onTick(long millisUntilFinished) {}
+            @Override
+            public void onFinish() {
+                isDragAndDrop = false;
+                sendSpecialKey(LEFTMOUSEUP);
+            }
+        };
+
         private CountDownTimer rightClickCountDown = new CountDownTimer(2*mTapdelay, 3*mTapdelay) {
             @Override
             public void onTick(long millisUntilFinished) {}
             @Override
             public void onFinish() {
                 if (singleTouchHasNotMoved()) {
+                    isDragAndDrop = false;
                     sendSpecialKey(RIGHTCLICK);
                 }
             }
@@ -744,6 +757,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
                 case (MotionEvent.ACTION_MOVE): {
+                    if (isDragAndDrop) {
+                        leftClickCountDown.cancel();
+                    }
                     sendMouseOrScrollEvent(event);
                     return true;
                 }
@@ -753,13 +769,21 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case (MotionEvent.ACTION_UP): {
                     rightClickCountDown.cancel();
+                    if (isDragAndDrop) {
+                        leftClickCountDown.cancel();
+                        isDragAndDrop = false;
+                        sendSpecialKey(LEFTMOUSEUP);
+                    }
                     if (isSingleTouchTap(event)) {
-                        sendSpecialKey(LEFTCLICK);
+                        sendSpecialKey(LEFTMOUSEDOWN);
+                        isDragAndDrop = true;
+                        leftClickCountDown.start();
                     }
                     mPointerID1 = MotionEvent.INVALID_POINTER_ID;
                     return true;
                 }
                 case (MotionEvent.ACTION_CANCEL): {
+                    leftClickCountDown.cancel();
                     rightClickCountDown.cancel();
                     mPointerID1 = MotionEvent.INVALID_POINTER_ID;
                     mPointerID2 = MotionEvent.INVALID_POINTER_ID;
