@@ -26,21 +26,23 @@ your PC.
   It does not matter how the text is entered, thus, all input methods such as
   typing, pasting or speech recognition should work.
 * The … button toggles a special keys bar containing *Escape*, *Tab*, *Ctrl*,
-  *Super*, *Alt*, arrow keys, volume keys, *Insert*, *Delete*, *Home*,
-  *End*, *PageUp/Down* and function keys.
+  *Super*, *Alt*, arrow keys, volume keys, middle mouse click, *Insert*,
+  *Delete*, *Home*, *End*, *PageUp/Down* and function keys.
   The keys *Ctrl*, *Super* and *Alt* are usually used as modifier keys and
   therefore wait for the next character.
   So hitting *Ctrl* and then *q* will be interpreted as the combination
   *Ctrl+q*.
   To only type a modifier key without a second key, hit the button twice.
 * The empty area beyond the text field is used to control the mouse and works
-  similar to the touchpad of laptops (hint: hiding the keyboard will increase
-  the space for mouse control).
-  A short click is interpreted as a left mouse click and a long press as a
+  similar to the touchpad of laptops.
+  Note that hiding the keyboard will increase the space for mouse control.
+  A fast tap is interpreted as a left mouse click and a long press as a
   right mouse click.
   Vertical scrolling works as a two-finger gesture (actually the maximum
-  vertical movement of your two fingers is used, so it is possible to touch
-  with the thumb of one hand and use one finger of the other hand for
-  movement).
+  vertical movement of your two fingers is used, so it is possible to rest
+  the thumb of one hand on the touch screen and use one finger of the other
+  hand for movement).
+  Drag and drop is implemented as a fast tap, quickly followed by a move
+  gesture.
 
   
