@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/server_edit"
-        android:singleLine="true"
+        android:maxLines="1"
         android:hint="@string/enter_server_address"
         android:layout_marginTop="50dp"
         android:layout_marginLeft="50dp"
