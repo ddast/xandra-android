@@ -37,8 +37,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 
-import junit.framework.Assert;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -155,9 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initKeyboardButtons() {
         mLayoutKeys = (HorizontalScrollView)findViewById(R.id.layout_keys);
-        Assert.assertNotNull(mLayoutKeys);
         mToggleButton = (Button)findViewById(R.id.button_togglekeys);
-        Assert.assertNotNull(mToggleButton);
         mToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -504,7 +500,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mSpecialKeysVisibility == View.VISIBLE) {
             mLayoutKeys = (HorizontalScrollView) findViewById(R.id.layout_keys);
-            Assert.assertNotNull(mLayoutKeys);
             mLayoutKeys.setVisibility(View.VISIBLE);
         }
     }
