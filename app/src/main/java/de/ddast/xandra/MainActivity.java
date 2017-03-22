@@ -428,19 +428,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-
-        setUiToDisconnected();
-        mHandler.removeCallbacks(mSendHeartbeat);
-
-        if (mSocket == null) {
-            return;
-        }
-        try {
-            Log.i(TAG, "Closing connection");
-            mSocket.close();
-        } catch (IOException e) {
-            Log.e(TAG, "IO error while closing");
-        }
+        disconnect();
     }
 
     @Override
@@ -462,6 +450,22 @@ public class MainActivity extends AppCompatActivity {
                               .put((byte)(0x80 | distanceY & 0x3f))
                               .array();
         new SendBytes().execute(bA);
+    }
+
+    private void disconnect() {
+        setUiToDisconnected();
+        mHandler.removeCallbacks(mSendHeartbeat);
+
+        if (mSocket == null) {
+            return;
+        }
+        try {
+            Log.i(TAG, "Closing connection");
+            mSocket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "IO error while closing");
+        }
+        mSocket = null;
     }
 
     private void sendUTF8(String s) {
@@ -529,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                setUiToDisconnected();
+                disconnect();
             }
         }
     }
@@ -538,7 +542,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             Log.i(TAG, "Connecting to " + mServerAddr);
-            setUiToDisconnected();
+            disconnect();
         }
 
         @Override
@@ -563,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
             if (result) {
                 setUiToConnected();
             } else {
-                setUiToDisconnected();
+                disconnect();
             }
             mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
         }
