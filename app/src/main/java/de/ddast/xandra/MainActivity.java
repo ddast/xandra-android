@@ -47,6 +47,7 @@ import java.nio.ByteBuffer;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG              = "xandra";
+    private static final boolean DEBUG           = false;
 
     private static final long HEARTBEAT_INTERVAL = 1000L;
 
@@ -144,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         mSendHeartbeat = new SendHeartbeat();
 
         mBufferEdit.setHorizontallyScrolling(true);  // does not work in xml for some reason
+        mBufferEdit.setText(" ");
         mBufferEdit.addTextChangedListener(new AddedTextWatcher());
 
         mMouseGestureDetector = new MouseGestureDetector();
@@ -423,29 +425,28 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        if (DEBUG) {
+            Log.d(TAG, "Disconnecting due to onPause()");
+        }
         super.onPause();
-
-        setUiToDisconnected();
-        mHandler.removeCallbacks(mSendHeartbeat);
-
-        if (mSocket == null) {
-            return;
-        }
-        try {
-            Log.i(TAG, "Closing connection");
-            mSocket.close();
-        } catch (IOException e) {
-            Log.e(TAG, "IO error while closing");
-        }
+        disconnect();
     }
 
     @Override
     protected void onResume() {
+        if (DEBUG) {
+            Log.d(TAG, "Connect due to onResume()");
+        }
         super.onResume();
+        mBufferEdit.setText(" ");
         new ConnectToServer().execute();
     }
 
     private void sendMouse(int distanceX, int distanceY) {
+        if (DEBUG) {
+            Log.d(TAG, "Sending mouse event: distanceX " + String.valueOf(distanceX)
+                  + ", distanceY " + String.valueOf(distanceY));
+        }
         boolean isNegX = distanceX < 0;
         boolean isNegY = distanceY < 0;
         distanceX = Math.abs(distanceX) & 0xfff;
@@ -460,7 +461,30 @@ public class MainActivity extends AppCompatActivity {
         new SendBytes().execute(bA);
     }
 
+    private void disconnect() {
+        if (DEBUG) {
+            Log.d(TAG, "Disconnecting");
+        }
+        setUiToDisconnected();
+        mHandler.removeCallbacks(mSendHeartbeat);
+
+        if (mSocket == null) {
+            Log.i(TAG, "mSocket is null while trying to disconnect");
+            return;
+        }
+        try {
+            Log.i(TAG, "Closing connection");
+            mSocket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "IO error while closing");
+        }
+        mSocket = null;
+    }
+
     private void sendUTF8(String s) {
+        if (DEBUG) {
+            Log.d(TAG, "Sending UTF8 character" + s);
+        }
         try {
             byte[] utf8Repr = s.getBytes("UTF8");
             new SendBytes().execute(utf8Repr);
@@ -470,6 +494,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendSpecialKey(byte b) {
+        if (DEBUG) {
+            Log.d(TAG, "Sending special key" + String.valueOf(b));
+        }
         new SendBytes().execute(new byte[] {(byte)0xfc, (byte)0x80, (byte)0x80, (byte)0x80,
                                 (byte)0x80, (byte)(0x80 | b)});
     }
@@ -509,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
         protected Boolean doInBackground(byte[]... bA) {
             if (mOutput == null) {
                 Log.e(TAG, "Tried to send, but not yet connected");
-                return false;
+                return true;
             }
 
             try {
@@ -524,7 +551,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                setUiToDisconnected();
+                if (DEBUG) {
+                    Log.d(TAG, "Disconnecting due to error while sending");
+                }
+                disconnect();
             }
         }
     }
@@ -532,8 +562,11 @@ public class MainActivity extends AppCompatActivity {
     private class ConnectToServer extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected void onPreExecute() {
+            if (DEBUG) {
+                Log.d(TAG, "Disconnecting before connecting");
+            }
+            disconnect();
             Log.i(TAG, "Connecting to " + mServerAddr);
-            setUiToDisconnected();
         }
 
         @Override
@@ -558,7 +591,10 @@ public class MainActivity extends AppCompatActivity {
             if (result) {
                 setUiToConnected();
             } else {
-                setUiToDisconnected();
+                if (DEBUG) {
+                    Log.d(TAG, "Disconnecting due to error while connecting");
+                }
+                disconnect();
             }
             mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
         }
@@ -567,6 +603,7 @@ public class MainActivity extends AppCompatActivity {
     private class SendHeartbeat implements Runnable {
         @Override
         public void run() {
+            Log.i(TAG, "Send heartbeat");
             if (mPowerManager.isScreenOn()) {
                 new SendBytes().execute(new byte[]{HEARTBEAT});
             }
