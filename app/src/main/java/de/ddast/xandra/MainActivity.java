@@ -429,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Disconnecting due to onPause()");
         }
         super.onPause();
+        mHandler.removeCallbacks(mSendHeartbeat);
         disconnect();
     }
 
@@ -466,8 +467,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Disconnecting");
         }
         setUiToDisconnected();
-        mHandler.removeCallbacks(mSendHeartbeat);
-
         if (mSocket == null) {
             Log.i(TAG, "mSocket is null while trying to disconnect");
             return;
