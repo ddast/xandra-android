@@ -44,7 +44,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TcpClientObserver {
 
     private static final String TAG              = "xandra";
     private static final boolean DEBUG           = false;
@@ -412,6 +412,14 @@ public class MainActivity extends AppCompatActivity {
                 sendSpecialKey(F12);
             }
         });
+    }
+
+    public void connectionEstablished() {
+        // react on successful connection
+    }
+
+    public void connectionLost() {
+        // react on lost connection
     }
 
     @Override
