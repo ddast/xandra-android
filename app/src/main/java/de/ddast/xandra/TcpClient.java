@@ -71,7 +71,7 @@ class TcpClient {
     static final byte LEFTMOUSEDOWN      = (byte)0x24;
     static final byte LEFTMOUSEUP        = (byte)0x25;
 
-    private static final String TAG  = "Xandra/TcpClient";
+    private static final String TAG  = "TcpClient";
     private static final boolean DEBUG = true;
     private static final long HEARTBEAT_INTERVAL = 1000L;
     private static final byte HEARTBEAT          = (byte)0x00;
@@ -201,7 +201,9 @@ class TcpClient {
     private Runnable mSendHeartbeat = new Runnable() {
         @Override
         public void run() {
-            Log.i(TAG, "Send heartbeat");
+            if (DEBUG) {
+                Log.d(TAG, "Sending heartbeat");
+            }
             new SendBytes().execute(new byte[]{HEARTBEAT});
             if (!isConnected()) {
                 Log.e(TAG, "Connection error on heartbeat, try to reconnect");
@@ -215,7 +217,7 @@ class TcpClient {
     private class SendBytes extends AsyncTask<byte[], Void, Boolean> {
         @Override
         protected Boolean doInBackground(byte[]... bA) {
-            if (!isConnected() && mOutput == null) {
+            if (!isConnected() || mOutput == null) {
                 Log.e(TAG, "Tried to send, but not yet connected");
                 return false;
             }

@@ -32,8 +32,8 @@ import android.widget.HorizontalScrollView;
 
 public class MainActivity extends AppCompatActivity implements TcpClientObserver {
 
-    private static final String TAG              = "xandra";
-    private static final boolean DEBUG           = false;
+    private static final String TAG              = "MainActivity";
+    private static final boolean DEBUG           = true;
 
     private int mPort;
     private long mTapdelay;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
     //private PowerManager mPowerManager;
     private TcpClient mTcpClient;
     private MouseGestureWatcher mMouseGestureWatcher;
+    private SendCharsTextWatcher mSendCharsTextWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,16 +116,15 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
                               TcpClient.F5, TcpClient.F6, TcpClient.F7, TcpClient.F8,
                               TcpClient.F9, TcpClient.F10, TcpClient.F11, TcpClient.F12};
 
-        for (int buttonID : buttonIds) {
-            for (final byte buttonCode : buttonCodes) {
-                Button button = (Button)findViewById(buttonID);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mTcpClient.sendSpecialKey(buttonCode);
-                    }
-                });
-            }
+        for (int i = 0; i < buttonIds.length; ++i) {
+            Button button = (Button)findViewById(buttonIds[i]);
+            final byte code = buttonCodes[i];
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mTcpClient.sendSpecialKey(code);
+                }
+            });
         }
     }
 
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        if (mBufferEdit.isEnabled()) {
+        if (mTcpClient.isConnected() && mMouseGestureWatcher != null) {
             return mMouseGestureWatcher.processTouchEvent(event) || super.onTouchEvent(event);
         } else {
             return super.onTouchEvent(event);
@@ -152,7 +152,10 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
         }
         super.onPause();
         mTcpClient.shutdown();
+        mBufferEdit.removeTextChangedListener(mSendCharsTextWatcher);
         mTcpClient = null;
+        mSendCharsTextWatcher = null;
+        mMouseGestureWatcher = null;
     }
 
     @Override
@@ -165,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
         mTcpClient = new TcpClient(mServerAddr, mPort, this);
         mMouseGestureWatcher = new MouseGestureWatcher(mTcpClient, mTapdelay, mTaptol, mSensitivity,
                                                        mAcceleration, mScrollThreshold);
-        SendCharsTextWatcher sendCharsTextWatcher = new SendCharsTextWatcher(mTcpClient);
-        mBufferEdit.addTextChangedListener(sendCharsTextWatcher);
+        mSendCharsTextWatcher = new SendCharsTextWatcher(mTcpClient);
+        mBufferEdit.addTextChangedListener(mSendCharsTextWatcher);
         mTcpClient.connect();
     }
 
@@ -195,5 +198,4 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
             mLayoutKeys.setVisibility(View.VISIBLE);
         }
     }
-
 }
