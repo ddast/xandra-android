@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016  Dennis Dast
+ * Copyright (C) 2017  Dennis Dast
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,105 @@ import android.os.CountDownTimer;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 
-class MouseGestureDetector {
+class MouseGestureWatcher {
+    private final long mTapdelay;
+    private final float mTaptol, mSensitivity, mAcceleration, mScrollThreshold;
+    private final TcpClient mTcpClient;
+    private final CountDownTimer mLeftClickCountDown;
+    private final CountDownTimer mRightClickCountDown;
     private int mPointerID1 = MotionEvent.INVALID_POINTER_ID;
     private int mPointerID2 = MotionEvent.INVALID_POINTER_ID;
     private float initX, initY, mOldX, mOldY, mOldY2;
     private double accumulatedDiffY;
     private long mDownEventTime, oldTime;
-    boolean isMultiTouchGesture, isDragAndDrop;
+    private boolean isMultiTouchGesture, isDragAndDrop;
+
+    MouseGestureWatcher(TcpClient tcpClient, long tapdelay, float taptol, float sensitivity,
+                        float acceleration, float scrollThreshold) {
+        mTcpClient = tcpClient;
+        mTapdelay = tapdelay;
+        mTaptol = taptol;
+        mSensitivity = sensitivity;
+        mAcceleration = acceleration;
+        mScrollThreshold = scrollThreshold;
+
+        mLeftClickCountDown = new CountDownTimer(mTapdelay, 2*mTapdelay) {
+            @Override
+            public void onTick(long millisUntilFinished) {}
+            @Override
+            public void onFinish() {
+                isDragAndDrop = false;
+                mTcpClient.sendSpecialKey(TcpClient.LEFTMOUSEUP);
+            }
+        };
+
+        mRightClickCountDown = new CountDownTimer(2*mTapdelay, 3*mTapdelay) {
+            @Override
+            public void onTick(long millisUntilFinished) {}
+            @Override
+            public void onFinish() {
+                if (singleTouchHasNotMoved()) {
+                    isDragAndDrop = false;
+                    mTcpClient.sendSpecialKey(TcpClient.RIGHTCLICK);
+                }
+            }
+        };
+    }
+
+    boolean processTouchEvent(MotionEvent event) {
+        int action = MotionEventCompat.getActionMasked(event);
+
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN): {
+                isMultiTouchGesture = false;
+                initFirstPointer(event);
+                mRightClickCountDown.start();
+                return true;
+            }
+            case (MotionEvent.ACTION_POINTER_DOWN): {
+                isMultiTouchGesture = true;
+                if (event.getPointerCount() == 2) {
+                    initSecondPointer(event);
+                }
+                return true;
+            }
+            case (MotionEvent.ACTION_MOVE): {
+                if (isDragAndDrop) {
+                    mLeftClickCountDown.cancel();
+                }
+                sendMouseOrScrollEvent(event);
+                return true;
+            }
+            case (MotionEvent.ACTION_POINTER_UP): {
+                rearrangePointerIDs(event);
+                return true;
+            }
+            case (MotionEvent.ACTION_UP): {
+                mRightClickCountDown.cancel();
+                if (isDragAndDrop) {
+                    mLeftClickCountDown.cancel();
+                    isDragAndDrop = false;
+                    mTcpClient.sendSpecialKey(TcpClient.LEFTMOUSEUP);
+                }
+                if (isSingleTouchTap(event)) {
+                    mTcpClient.sendSpecialKey(TcpClient.LEFTMOUSEDOWN);
+                    isDragAndDrop = true;
+                    mLeftClickCountDown.start();
+                }
+                mPointerID1 = MotionEvent.INVALID_POINTER_ID;
+                return true;
+            }
+            case (MotionEvent.ACTION_CANCEL): {
+                mLeftClickCountDown.cancel();
+                mRightClickCountDown.cancel();
+                mPointerID1 = MotionEvent.INVALID_POINTER_ID;
+                mPointerID2 = MotionEvent.INVALID_POINTER_ID;
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
 
     private double acceleratedMouseMovement(float len, long time) {
         double velocity = (len < 0.0f ? -1.0 : 1.0)
@@ -63,7 +155,7 @@ class MouseGestureDetector {
         long diffT = event.getEventTime() - oldTime;
         oldTime = event.getEventTime();
         if (event.getPointerCount() == 1) {
-            sendMouse(calcMouseMovement(diffX, diffT),
+            mTcpClient.sendMouse(calcMouseMovement(diffX, diffT),
                     calcMouseMovement(diffY, diffT));
         } else if (event.getPointerCount() == 2) {
             final int pointerIndex2 = event.findPointerIndex(mPointerID2);
@@ -72,11 +164,11 @@ class MouseGestureDetector {
             float maxDiffY = Math.abs(diffY) > Math.abs(diffY2) ? diffY : diffY2;
             accumulatedDiffY += acceleratedMouseMovement(maxDiffY, diffT);
             while (accumulatedDiffY < -mScrollThreshold) {
-                sendSpecialKey(WHEELUP);
+                mTcpClient.sendSpecialKey(TcpClient.WHEELUP);
                 accumulatedDiffY += mScrollThreshold;
             }
             while (accumulatedDiffY > mScrollThreshold) {
-                sendSpecialKey(WHEELDOWN);
+                mTcpClient.sendSpecialKey(TcpClient.WHEELDOWN);
                 accumulatedDiffY -= mScrollThreshold;
             }
         }
@@ -121,83 +213,4 @@ class MouseGestureDetector {
                 (Math.abs(mOldX - initX) < mTaptol) &&
                 (Math.abs(mOldY - initY) < mTaptol));
     }
-
-
-    private CountDownTimer leftClickCountDown = new CountDownTimer(mTapdelay, 2*mTapdelay) {
-        @Override
-        public void onTick(long millisUntilFinished) {}
-        @Override
-        public void onFinish() {
-            isDragAndDrop = false;
-            sendSpecialKey(LEFTMOUSEUP);
-        }
-    };
-
-    private CountDownTimer rightClickCountDown = new CountDownTimer(2*mTapdelay, 3*mTapdelay) {
-        @Override
-        public void onTick(long millisUntilFinished) {}
-        @Override
-        public void onFinish() {
-            if (singleTouchHasNotMoved()) {
-                isDragAndDrop = false;
-                sendSpecialKey(RIGHTCLICK);
-            }
-        }
-    };
-
-    private boolean processTouchEvent(MotionEvent event) {
-        int action = MotionEventCompat.getActionMasked(event);
-
-        switch(action) {
-            case (MotionEvent.ACTION_DOWN): {
-                isMultiTouchGesture = false;
-                initFirstPointer(event);
-                rightClickCountDown.start();
-                return true;
-            }
-            case (MotionEvent.ACTION_POINTER_DOWN): {
-                isMultiTouchGesture = true;
-                if (event.getPointerCount() == 2) {
-                    initSecondPointer(event);
-                }
-                return true;
-            }
-            case (MotionEvent.ACTION_MOVE): {
-                if (isDragAndDrop) {
-                    leftClickCountDown.cancel();
-                }
-                sendMouseOrScrollEvent(event);
-                return true;
-            }
-            case (MotionEvent.ACTION_POINTER_UP): {
-                rearrangePointerIDs(event);
-                return true;
-            }
-            case (MotionEvent.ACTION_UP): {
-                rightClickCountDown.cancel();
-                if (isDragAndDrop) {
-                    leftClickCountDown.cancel();
-                    isDragAndDrop = false;
-                    sendSpecialKey(LEFTMOUSEUP);
-                }
-                if (isSingleTouchTap(event)) {
-                    sendSpecialKey(LEFTMOUSEDOWN);
-                    isDragAndDrop = true;
-                    leftClickCountDown.start();
-                }
-                mPointerID1 = MotionEvent.INVALID_POINTER_ID;
-                return true;
-            }
-            case (MotionEvent.ACTION_CANCEL): {
-                leftClickCountDown.cancel();
-                rightClickCountDown.cancel();
-                mPointerID1 = MotionEvent.INVALID_POINTER_ID;
-                mPointerID2 = MotionEvent.INVALID_POINTER_ID;
-                return true;
-            }
-            default:
-                return false;
-        }
-    }
-}
 }
