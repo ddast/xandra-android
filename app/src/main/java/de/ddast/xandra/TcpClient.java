@@ -17,11 +17,8 @@
 
 package de.ddast.xandra;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -81,7 +78,7 @@ class TcpClient {
     private final TcpClientObserver mTcpClientObserver;
     private Socket mSocket;
     private OutputStream mOutput;
-    private boolean mRunning = false;
+    private boolean mConnecting = false, mConnected = false;
     private Handler mHandler;
 
     TcpClient(String serverAddr, int port, TcpClientObserver tcpClientObserver) {
@@ -92,9 +89,10 @@ class TcpClient {
     }
 
     void connect() {
-        mRunning = true;
         mHandler.removeCallbacks(mSendHeartbeat);
-        new ConnectAsync().execute();
+        if (!mConnecting) {
+            new ConnectAsync().execute();
+        }
     }
 
     void shutdown() {
@@ -103,7 +101,7 @@ class TcpClient {
     }
 
     boolean isConnected() {
-        return mRunning;
+        return mConnected;
     }
 
     void sendMouse(int distanceX, int distanceY) {
@@ -149,6 +147,7 @@ class TcpClient {
         @Override
         protected void onPreExecute() {
             Log.i(TAG, "Connecting to " + mServerAddr);
+            mConnecting = true;
         }
 
         @Override
@@ -173,6 +172,8 @@ class TcpClient {
             if (result) {
                 mTcpClientObserver.connectionEstablished();
             }
+            mConnecting = false;
+            mConnected = result;
             mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
         }
     }
@@ -181,7 +182,7 @@ class TcpClient {
         if (DEBUG) {
             Log.d(TAG, "Disconnecting");
         }
-        mRunning = false;
+        mConnected = false;
         mTcpClientObserver.connectionLost();
 
         if (mSocket != null) {
