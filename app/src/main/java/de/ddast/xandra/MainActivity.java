@@ -32,8 +32,8 @@ import android.widget.HorizontalScrollView;
 
 public class MainActivity extends AppCompatActivity implements TcpClientObserver {
 
-    private static final String TAG              = "MainActivity";
-    private static final boolean DEBUG           = true;
+    private static final String TAG    = "MainActivity";
+    private static final boolean DEBUG = false;
 
     private int mPort;
     private long mTapdelay;

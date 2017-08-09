@@ -71,8 +71,8 @@ class TcpClient {
     static final byte LEFTMOUSEDOWN      = (byte)0x24;
     static final byte LEFTMOUSEUP        = (byte)0x25;
 
-    private static final String TAG  = "TcpClient";
-    private static final boolean DEBUG = true;
+    private static final String TAG              = "TcpClient";
+    private static final boolean DEBUG           = false;
     private static final long HEARTBEAT_INTERVAL = 1000L;
     private static final byte HEARTBEAT          = (byte)0x00;
 
