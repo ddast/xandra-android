@@ -8,8 +8,8 @@ android {
         applicationId "de.ddast.xandra"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 19
-        versionName "0.6.4"
+        versionCode 20
+        versionName "0.6.5"
     }
     buildTypes {
         release {
