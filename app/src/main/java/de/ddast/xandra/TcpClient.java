@@ -206,39 +206,49 @@ class TcpClient {
                 Log.d(TAG, "Sending heartbeat");
             }
             new SendBytes().execute(new byte[]{HEARTBEAT});
-            if (!isConnected()) {
-                Log.e(TAG, "Connection error on heartbeat, try to reconnect");
-                connect();
-            } else {
-                mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
-            }
         }
     };
 
-    private class SendBytes extends AsyncTask<byte[], Void, Boolean> {
+    private class SendResult {
+        boolean success = false;
+        boolean isHeartbeat = false;
+    }
+
+    private class SendBytes extends AsyncTask<byte[], Void, SendResult> {
         @Override
-        protected Boolean doInBackground(byte[]... bA) {
+        protected SendResult doInBackground(byte[]... bA) {
+            SendResult result = new SendResult();
+            result.isHeartbeat = (bA[0].length == 1) && (bA[0][0] == HEARTBEAT);
             if (!isConnected() || mOutput == null) {
                 Log.e(TAG, "Tried to send, but not yet connected");
-                return false;
+                result.success = false;
+                return result;
             }
 
             try {
                 mOutput.write(bA[0]);
             } catch (IOException e) {
                 Log.e(TAG, "IO error while sending");
-                return false;
+                result.success = false;
+                return result;
             }
-            return true;
+            result.success = true;
+            return result;
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (!result) {
+        protected void onPostExecute(SendResult result) {
+            if (!result.success) {
                 if (DEBUG) {
                     Log.d(TAG, "Disconnecting due to error while sending");
                 }
                 disconnect();
+                if (result.isHeartbeat) {
+                    Log.e(TAG, "Connection error on heartbeat, try to reconnect");
+                    connect();
+                }
+            } else if (result.isHeartbeat) {
+                mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
             }
         }
     }
