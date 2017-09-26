@@ -78,8 +78,9 @@ class TcpClient {
     private final TcpClientObserver mTcpClientObserver;
     private Socket mSocket;
     private OutputStream mOutput;
-    private boolean mConnecting = false, mConnected = false;
+    private boolean mConnected = false;
     private Handler mHandler;
+    private ConnectAsync mConnectAsync = null;
 
     TcpClient(String serverAddr, int port, TcpClientObserver tcpClientObserver) {
         mServerAddr = serverAddr;
@@ -90,14 +91,11 @@ class TcpClient {
 
     void connect() {
         mHandler.removeCallbacks(mSendHeartbeat);
-        if (!mConnecting) {
-            new ConnectAsync().execute();
+        if ((mConnectAsync != null) && (mConnectAsync.getStatus() == AsyncTask.Status.RUNNING)) {
+            return;
         }
-    }
-
-    void shutdown() {
-        mHandler.removeCallbacks(mSendHeartbeat);
-        disconnect();
+        mConnectAsync = new ConnectAsync();
+        mConnectAsync.execute();
     }
 
     boolean isConnected() {
@@ -147,7 +145,6 @@ class TcpClient {
         @Override
         protected void onPreExecute() {
             Log.i(TAG, "Connecting to " + mServerAddr);
-            mConnecting = true;
         }
 
         @Override
@@ -172,17 +169,21 @@ class TcpClient {
             if (result) {
                 mTcpClientObserver.connectionEstablished();
             }
-            mConnecting = false;
             mConnected = result;
             mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
         }
     }
 
-    private void disconnect() {
+    void disconnect() {
         if (DEBUG) {
             Log.d(TAG, "Disconnecting");
         }
         mConnected = false;
+        if (mConnectAsync != null) {
+            mConnectAsync.cancel(true);
+        }
+        mHandler.removeCallbacks(mSendHeartbeat);
+
         mTcpClientObserver.connectionLost();
 
         if (mSocket != null) {
@@ -238,17 +239,18 @@ class TcpClient {
 
         @Override
         protected void onPostExecute(SendResult result) {
-            if (!result.success) {
+            if (!result.isHeartbeat) {
+                return;
+            }
+            if (result.success) {
+                mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
+            } else {
                 if (DEBUG) {
-                    Log.d(TAG, "Disconnecting due to error while sending");
+                    Log.d(TAG, "Disconnecting due to error on heartbeat");
                 }
                 disconnect();
-                if (result.isHeartbeat) {
-                    Log.e(TAG, "Connection error on heartbeat, try to reconnect");
-                    connect();
-                }
-            } else if (result.isHeartbeat) {
-                mHandler.postDelayed(mSendHeartbeat, HEARTBEAT_INTERVAL);
+                Log.e(TAG, "Reconnecting due to error on heartbeat");
+                connect();
             }
         }
     }

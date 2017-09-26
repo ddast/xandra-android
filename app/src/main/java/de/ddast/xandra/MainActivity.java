@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
         mServerAddr      = getIntent().getStringExtra(ConnectActivity.SERVERADDR);
 
         initViews();
+        setUiToDisconnected();
     }
 
     private void initViews() {
@@ -129,10 +130,16 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
     }
 
     public void connectionEstablished() {
+        if (DEBUG) {
+            Log.d(TAG, "Connection established");
+        }
         setUiToConnected();
     }
 
     public void connectionLost() {
+        if (DEBUG) {
+            Log.d(TAG, "Connection lost");
+        }
         setUiToDisconnected();
     }
 
@@ -151,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
             Log.d(TAG, "Disconnecting due to onPause()");
         }
         super.onPause();
-        mTcpClient.shutdown();
+        mTcpClient.disconnect();
         mBufferEdit.removeTextChangedListener(mSendCharsTextWatcher);
         mTcpClient = null;
         mSendCharsTextWatcher = null;
@@ -164,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
             Log.d(TAG, "Connect due to onResume()");
         }
         super.onResume();
-        mBufferEdit.setText(" ");
         mTcpClient = new TcpClient(mServerAddr, mPort, this);
         mMouseGestureWatcher = new MouseGestureWatcher(mTcpClient, mTapdelay, mTaptol, mSensitivity,
                                                        mAcceleration, mScrollThreshold);
