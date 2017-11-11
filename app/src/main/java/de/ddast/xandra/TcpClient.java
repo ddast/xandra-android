@@ -123,7 +123,7 @@ class TcpClient {
 
     void sendUTF8(String s) {
         if (DEBUG) {
-            Log.d(TAG, "Sending UTF8 character" + s);
+            Log.d(TAG, "Sending UTF8 character " + s);
         }
         try {
             byte[] utf8Repr = s.getBytes("UTF8");
@@ -135,7 +135,7 @@ class TcpClient {
 
     void sendSpecialKey(byte b) {
         if (DEBUG) {
-            Log.d(TAG, "Sending special key" + String.valueOf(b));
+            Log.d(TAG, "Sending special key " + String.valueOf(b));
         }
         new SendBytes().execute(new byte[] {(byte)0xfc, (byte)0x80, (byte)0x80, (byte)0x80,
                 (byte)0x80, (byte)(0x80 | b)});
