@@ -38,7 +38,7 @@
             android:layout_weight="10"
             android:layout_height="wrap_content"
             android:id="@+id/buffer_edit"
-            android:inputType="textNoSuggestions|textVisiblePassword|textMultiLine"
+            android:inputType="textNoSuggestions|textMultiLine"
             android:cursorVisible="true"
             android:textSize="14sp"
             android:maxLines="1"
