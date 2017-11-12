@@ -177,14 +177,14 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
 
     private void setUiToDisconnected() {
         mBufferEdit.setEnabled(false);
-        mBufferEdit.setText(R.string.notconnected);
+        //mBufferEdit.setText(R.string.notconnected);
         mLayoutKeys.setVisibility(View.GONE);
         mToggleButton.setEnabled(false);
     }
 
     private void setUiToConnected() {
         mBufferEdit.setEnabled(true);
-        mBufferEdit.setText(" ");
+        //mBufferEdit.setText(" ");
         showSoftKeyboard(mBufferEdit);
         mToggleButton.setEnabled(true);
     }
