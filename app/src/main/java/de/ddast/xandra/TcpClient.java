@@ -29,6 +29,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 class TcpClient {
+    private static final String TAG    = "TcpClient";
+    private static final boolean DEBUG = false;
+
     static final byte LEFTCLICK     = (byte)0x00;
     static final byte MIDDLECLICK   = (byte)0x01;
     static final byte RIGHTCLICK    = (byte)0x02;
@@ -68,8 +71,6 @@ class TcpClient {
     static final byte LEFTMOUSEDOWN = (byte)0x24;
     static final byte LEFTMOUSEUP   = (byte)0x25;
 
-    private static final String TAG              = "TcpClient";
-    private static final boolean DEBUG           = false;
     private static final long HEARTBEAT_INTERVAL = 1000L;
     private static final byte HEARTBEAT          = (byte)0x00;
 

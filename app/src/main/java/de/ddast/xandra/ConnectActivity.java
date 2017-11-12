@@ -30,7 +30,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class ConnectActivity extends AppCompatActivity {
-
     public final static String SERVERADDR = "serveraddr";
     public static boolean themeHasChanged = false;
 

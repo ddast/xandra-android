@@ -31,7 +31,6 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 
 public class MainActivity extends AppCompatActivity implements TcpClientObserver {
-
     private static final String TAG    = "MainActivity";
     private static final boolean DEBUG = false;
 
@@ -43,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
     private HorizontalScrollView mLayoutKeys;
     private Button mToggleButton;
     private String mServerAddr;
-    //private PowerManager mPowerManager;
     private TcpClient mTcpClient;
     private MouseGestureWatcher mMouseGestureWatcher;
     private SendCharsTextWatcher mSendCharsTextWatcher;
@@ -60,8 +58,6 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
         if (sharedPreferences.getBoolean(this.getString(R.string.pref_lock), false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
