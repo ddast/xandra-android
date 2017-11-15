@@ -195,9 +195,6 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
                     getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
-        if (mSpecialKeysVisibility == View.VISIBLE) {
-            mLayoutKeys = (HorizontalScrollView) findViewById(R.id.layout_keys);
-            mLayoutKeys.setVisibility(View.VISIBLE);
-        }
+        mLayoutKeys.setVisibility(mSpecialKeysVisibility);
     }
 }
