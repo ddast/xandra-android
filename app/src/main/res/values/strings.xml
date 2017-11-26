@@ -6,7 +6,8 @@
     <string name="connect">Connect</string>
 
     <!-- MainActivity -->
-    <string name="notconnected">Not connected</string>
+    <string name="connected">Connected</string>
+    <string name="not_connected">Not connected. Trying to connect…</string>
 
     <!-- Settings -->
     <string name="settings">Settings</string>

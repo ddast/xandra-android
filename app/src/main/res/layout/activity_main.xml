@@ -17,6 +17,7 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,6 +28,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/layout_input"
         android:layout_alignParentTop="true"
         android:paddingBottom="0dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -42,6 +44,7 @@
             android:cursorVisible="true"
             android:textSize="14sp"
             android:maxLines="1"
+            app:backgroundTint="@color/colorAccent"
             android:enabled="false" />
 
         <Button
@@ -50,7 +53,52 @@
             android:layout_height="25dp"
             android:text="…"
             android:id="@+id/button_togglekeys"
-            android:background="@color/colorAccent"/>
+            android:background="@color/colorAccent" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_below="@id/layout_input"
+        android:layout_above="@id/layout_keys"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layout_border"
+        android:background="@drawable/border"
+        android:gravity="center"
+        android:layout_margin="2dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:id="@+id/imageview_mouse"
+                android:src="@drawable/ic_mouse_24dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textview_status" />
 
     </LinearLayout>
 

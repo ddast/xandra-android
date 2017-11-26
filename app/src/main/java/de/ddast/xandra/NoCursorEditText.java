@@ -21,7 +21,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-public class NoCursorEditText extends EditText {
+public class NoCursorEditText extends android.support.v7.widget.AppCompatEditText {
     public NoCursorEditText(Context context) {
         super(context);
     }

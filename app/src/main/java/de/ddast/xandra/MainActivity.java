@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -29,6 +30,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements TcpClientObserver {
     private static final String TAG    = "MainActivity";
@@ -40,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
     private int mSpecialKeysVisibility = View.GONE;
     private NoCursorEditText mBufferEdit;
     private HorizontalScrollView mLayoutKeys;
+    private AppCompatImageView mBackgroundImage;
+    private TextView mStatusTextView;
+    private LinearLayout mBackgroundBorder;
     private Button mToggleButton;
     private String mServerAddr;
     private TcpClient mTcpClient;
@@ -95,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
                 mLayoutKeys.setVisibility(mSpecialKeysVisibility);
             }
         });
+        mBackgroundImage = (AppCompatImageView)findViewById(R.id.imageview_mouse);
+        mBackgroundBorder = (LinearLayout)findViewById(R.id.layout_border);
+        mStatusTextView = (TextView)findViewById(R.id.textview_status);
 
         int[] buttonIds = {R.id.button_esc, R.id.button_tab, R.id.button_ctrl, R.id.button_sup,
                            R.id.button_alt, R.id.button_left, R.id.button_down, R.id.button_up,
@@ -177,16 +186,24 @@ public class MainActivity extends AppCompatActivity implements TcpClientObserver
 
     private void setUiToDisconnected() {
         mBufferEdit.setEnabled(false);
-        //mBufferEdit.setText(R.string.notconnected);
+        mBufferEdit.setAlpha(0.38f);
+        mBackgroundBorder.setAlpha(0.38f);
+        mBackgroundImage.setAlpha(0.38f);
+        mToggleButton.setAlpha(0.38f);
         mLayoutKeys.setVisibility(View.GONE);
         mToggleButton.setEnabled(false);
+        mStatusTextView.setText(R.string.not_connected);
     }
 
     private void setUiToConnected() {
         mBufferEdit.setEnabled(true);
-        //mBufferEdit.setText(" ");
+        mBufferEdit.setAlpha(1f);
+        mBackgroundBorder.setAlpha(1f);
+        mBackgroundImage.setAlpha(1f);
+        mToggleButton.setAlpha(1f);
         showSoftKeyboard(mBufferEdit);
         mToggleButton.setEnabled(true);
+        mStatusTextView.setText(R.string.connected);
     }
 
     private void showSoftKeyboard(View view) {
